@@ -1,0 +1,997 @@
+<!DOCTYPE HTML>
+
+<html lang="zh" xmlns="">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>吕沁函 Qinhan Lyu</title>
+    <meta name="author" content="吕沁函">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="css/desktop.css" media="screen and (min-width: 601px)">
+    <link rel="stylesheet" href="css/mobile.css" media="screen and (max-width: 600px)">
+    <link rel="stylesheet" href="css/slideshow.css">
+    <style>
+        /* 移除 alert_bar 相关样式 */
+        /* Media query to hide the right column when screen width is less than 600px */
+        @media (max-width: 600px) {
+            .right-column {
+                display: none;
+            }
+
+            .bottom-column {
+                display: block;
+            }
+        }
+
+        .inline-icon {
+            vertical-align: middle; /* 使图标与文本对齐 */
+            width: 24px; /* 设置图标的宽度 */
+            height: 24px; /* 设置图标的高度 */
+            margin-bottom: 4px;
+        }
+
+        @media (min-width: 600px) {
+            .right-column {
+                display: block;
+            }
+
+            .bottom-column {
+                display: none;
+            }
+        }
+
+        /* 照片墙样式 */
+        .photo-wall-container {
+            width: 100%;
+            overflow: hidden;
+            margin: 20px 0;
+            position: relative;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 10%, rgba(255,255,255,0.1) 90%, transparent 100%);
+            border-radius: 0;
+            padding: 24px 0;
+            height: 230px; /* 增加高度以适应更大的图片 */
+            max-width: 100%; /* 确保不超出容器宽度 */
+            box-sizing: border-box; /* 确保padding不会增加总宽度 */
+            z-index: 1; 
+        }
+
+        .photo-wall-container::before,
+        .photo-wall-container::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 50px;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .photo-wall-container::before {
+            left: 0;
+            background: linear-gradient(90deg, rgba(255,255,255,1) 0%, transparent 100%);
+        }
+
+        .photo-wall-container::after {
+            right: 0;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,1) 100%);
+        }
+
+        .photo-wall {
+            display: flex;
+            animation: scroll 50s linear infinite;
+            width: max-content;
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            align-items: center;
+            will-change: transform;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            transform: translate3d(0, 0, 0);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .photo-item {
+            flex-shrink: 0;
+            margin: 0 5px;
+            border-radius: 0;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            max-width: 260px; /* 限制最大宽度 */
+            will-change: transform;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+
+        .photo-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .photo-item img {
+            width: 260px;
+            height: 195px;
+            object-fit: cover;
+            display: block;
+        }
+
+        @keyframes scroll {
+            0% {
+                transform: translate3d(0, 0, 0);
+            }
+            100% {
+                transform: translate3d(-50%, 0, 0);
+            }
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 600px) {
+            .photo-item img {
+                width: 190px;
+                height: 140px;
+            }
+            
+            .photo-wall {
+                animation-duration: 25s;
+            }
+
+            .photo-wall-container::before,
+            .photo-wall-container::after {
+                width: 30px;
+            }
+
+            .photo-wall-container {
+                padding: 18px 0;
+                height: 170px; /* 移动端增加高度 */
+            }
+        }
+
+        /* 超小屏幕适配 */
+        @media (max-width: 400px) {
+            .photo-item img {
+                width: 170px;
+                height: 125px;
+            }
+            
+            .photo-wall {
+                animation-duration: 20s;
+            }
+
+            .photo-wall-container {
+                height: 155px; /* 超小屏幕增加高度 */
+            }
+        }
+
+        /* 滚动形式描述容器样式 */
+        .description-container {
+            position: relative;
+            overflow-y: auto;
+            overflow-x: hidden;
+            max-height: var(--image-height, 200px);
+            padding-right: 10px;
+            margin-right: -10px;
+            /* 自定义滚动条样式 - Firefox */
+            scrollbar-width: thin;
+            scrollbar-color: #1f8a6a #f1f1f1;
+        }
+
+        /* 自定义滚动条样式 - Chrome/Safari/Edge */
+        .description-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .description-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+            margin: 2px 0;
+        }
+
+        .description-container::-webkit-scrollbar-thumb {
+            background: #1f8a6a;
+            border-radius: 4px;
+            transition: background 0.2s ease;
+        }
+
+        .description-container::-webkit-scrollbar-thumb:hover {
+            background: #166e55;
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 600px) {
+            .description-container {
+                padding-right: 8px;
+                margin-right: -8px;
+                scrollbar-width: thin;
+                scrollbar-color: #1f8a6a #f1f1f1;
+            }
+
+            .description-container::-webkit-scrollbar {
+                width: 5px;
+            }
+        }
+    </style>
+    <script>
+        // 滚动形式描述容器功能
+        document.addEventListener("DOMContentLoaded", function() {
+            // 找到Research和Projects section
+            const researchSection = document.getElementById('Research');
+            const projectsSection = document.getElementById('Projects');
+            const paperSection = document.getElementById('paper');
+            
+            // 获取所有paper-container
+            const allContainers = document.querySelectorAll('.paper-container');
+            const targetContainers = [];
+            
+            // 找到Research section后的所有paper-container（直到Projects section）
+            if (researchSection || paperSection) {
+                const startSection = paperSection || researchSection;
+                let element = startSection.nextElementSibling;
+                while (element) {
+                    if (element === projectsSection) break;
+                    if (element.classList && element.classList.contains('paper-container')) {
+                        targetContainers.push(element);
+                    }
+                    element = element.nextElementSibling;
+                }
+            }
+            
+            // 找到Projects section后的所有paper-container
+            if (projectsSection) {
+                let element = projectsSection.nextElementSibling;
+                while (element) {
+                    if (element.classList && element.classList.contains('paper-container')) {
+                        targetContainers.push(element);
+                    }
+                    element = element.nextElementSibling;
+                }
+            }
+            
+            targetContainers.forEach((container) => {
+                const imageDiv = container.querySelector('.image');
+                const textDiv = container.querySelector('.text');
+                const mediaElement = imageDiv ? imageDiv.querySelector('img, .slideshow-container') : null;
+                
+                if (!mediaElement || !textDiv) return;
+                
+                // 找到描述段落（通常是包含长文本的p标签，排除作者和链接部分）
+                const paragraphs = textDiv.querySelectorAll('p');
+                let descriptionP = null;
+                
+                // 找到最长的段落作为描述段落（排除包含链接按钮的段落）
+                paragraphs.forEach(p => {
+                    const text = p.textContent.trim();
+                    const hasLinkButton = p.querySelector('strong.buttom') || p.querySelector('a[href]');
+                    if (text.length > 100 && !hasLinkButton) {
+                        if (!descriptionP || text.length > descriptionP.textContent.trim().length) {
+                            descriptionP = p;
+                        }
+                    }
+                });
+                
+                if (!descriptionP) return;
+                
+                // 创建滚动容器
+                const wrapper = document.createElement('div');
+                wrapper.className = 'description-container';
+                descriptionP.parentNode.insertBefore(wrapper, descriptionP);
+                wrapper.appendChild(descriptionP);
+                
+                // 设置高度为图片高度
+                function setHeight() {
+                    const fixedHeight = 300;
+                    const mediaHeight = mediaElement.offsetHeight || fixedHeight;
+                    const targetHeight = Math.max(fixedHeight, mediaHeight);
+                    wrapper.style.setProperty('--image-height', targetHeight + 'px');
+                    wrapper.style.maxHeight = targetHeight + 'px';
+                }
+                
+                setHeight();
+                
+                // 窗口大小改变时重新计算
+                let resizeTimer;
+                window.addEventListener('resize', function() {
+                    clearTimeout(resizeTimer);
+                    resizeTimer = setTimeout(setHeight, 250);
+                });
+            });
+        });
+
+        // 照片墙交互控制
+        document.addEventListener("DOMContentLoaded", function() {
+            const photoWall = document.querySelector('.photo-wall');
+            const photoWallContainer = document.querySelector('.photo-wall-container');
+            
+            if (photoWall && photoWallContainer) {
+                // 复制照片项以实现无缝循环
+                const originalItems = photoWall.querySelectorAll('.photo-item');
+                if (originalItems.length > 0) {
+                    // 克隆所有照片项
+                    originalItems.forEach(item => {
+                        const clone = item.cloneNode(true);
+                        photoWall.appendChild(clone);
+                    });
+                }
+                
+                // 鼠标悬停时暂停动画
+                photoWallContainer.addEventListener('mouseenter', function() {
+                    photoWall.style.animationPlayState = 'paused';
+                });
+                
+                // 鼠标离开时恢复动画
+                photoWallContainer.addEventListener('mouseleave', function() {
+                    photoWall.style.animationPlayState = 'running';
+                });
+                
+                // 点击图片时放大显示（包括克隆的图片）
+                photoWallContainer.addEventListener('click', function(e) {
+                    const photoItem = e.target.closest('.photo-item');
+                    if (photoItem) {
+                        const img = photoItem.querySelector('img');
+                        if (img) {
+                            // 创建模态框显示大图
+                            const modal = document.createElement('div');
+                            modal.style.cssText = `
+                                position: fixed;
+                                top: 0;
+                                left: 0;
+                                width: 100%;
+                                height: 100%;
+                                background: rgba(0, 0, 0, 0.8);
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                                z-index: 1000;
+                                cursor: pointer;
+                            `;
+                            
+                            const modalImg = document.createElement('img');
+                            modalImg.src = img.src;
+                            modalImg.style.cssText = `
+                                max-width: 90%;
+                                max-height: 90%;
+                                object-fit: contain;
+                                border-radius: 8px;
+                            `;
+                            
+                            modal.appendChild(modalImg);
+                            document.body.appendChild(modal);
+                            
+                            // 点击模态框关闭
+                            modal.addEventListener('click', function() {
+                                document.body.removeChild(modal);
+                            });
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+    <script src="js/slideshow.js"></script>
+</head>
+
+<body>
+
+<div class="mobile-component">
+    <ul>
+        <li><a href="#Top"><strong>吕沁函</strong></a></li>&nbsp;·&nbsp;
+        <li><a href="#ResearchExperience">经历</a></li>&nbsp;·&nbsp;
+        <!--         <li><a href="#Education">📚</a></li>&nbsp;·&nbsp;-->
+        <li><a href="#Research">研究</a></li>&nbsp;·&nbsp;
+        <li><a href="#Projects">项目</a></li>&nbsp;·&nbsp;
+        <li><a href="#Awards">获奖</a></li>&nbsp;·&nbsp;
+        <li><a href="index.html">English</a></li>
+    </ul>
+</div>
+
+<div class="desktop-component">
+    <ul>
+        <li><a href="#Top" style="font-size: x-large;"><strong>吕沁函</strong></a></li>&nbsp;·&nbsp;
+        <li><a href="#ResearchExperience">经历</a></li>&nbsp;·&nbsp;
+        <li><a href="#Research">研究</a></li>&nbsp;·&nbsp;
+        <li><a href="#Projects">项目</a></li>&nbsp;·&nbsp;
+        <li><a href="#Awards">获奖</a></li>&nbsp;·&nbsp;
+        <li><a href="index.html">English</a></li>
+    </ul>
+</div>
+
+<script>
+    // Get the height of the mobile and desktop navigation bars
+    var navbarHeightMobile = document.querySelector('.mobile-component ul').offsetHeight;
+    var navbarHeightDesktop = document.querySelector('.desktop-component ul').offsetHeight;
+
+    // Add click event listeners to navigation links
+    document.querySelectorAll('.mobile-component ul li a, .desktop-component ul li a, .a').forEach(function (anchor) {
+        anchor.addEventListener('click', function (event) {
+            
+            // 如果是切换语言的链接，不要阻止默认行为
+            if(this.getAttribute('href').indexOf('.html') !== -1) {
+                return;
+            }
+
+            event.preventDefault(); // Prevent the default navigation behavior
+
+            var targetId = this.getAttribute('href'); // Get the target section's ID from the link's href
+            var targetElement = document.querySelector(targetId); // Find the target element using its ID
+            var targetOffsetTop = targetElement.offsetTop; // Get the target's top offset relative to the document
+
+            // Calculate scroll position considering the navigation bar height to avoid overlap
+            var navbarHeight = (window.innerWidth < 768) ? navbarHeightMobile : navbarHeightDesktop;
+            window.scrollTo({
+                top: targetOffsetTop - navbarHeight,
+                behavior: 'smooth' // Smooth scroll to the target position
+            });
+        });
+    });
+</script>
+
+<section id="Top"></section>
+<table style="width:100%;max-width:1120px;margin:auto;padding-top: 30px;">
+    <tbody>
+    <tr style="padding:0px">
+        <td style="padding:0px">
+            <div class="bio">
+                <div class="face-name">
+                    <img src="src/images/profile.jpg" alt="profile photo" class="profile-img">
+                    <div class="name-info">
+                        <table style="width: 100%;">
+                            <tr>
+                                <td style="vertical-align: auto; width: auto; padding-right: 20px;">
+                                    <p>
+                                        吕沁函 <br>
+                                        Qinhan Lyu<br>
+                                    </p>
+                                </td>
+                                <td class="right-column" style="vertical-align: auto; width: auto; padding-left: 20px;">
+                                    <p>
+                                        <em style="color: rgb(160, 160, 160);font-size: 12px; padding-bottom: 0px">
+                                            2024 国家奖学金 &#127894<br>
+                                            2025 国家励志奖学金 &#127894<br>
+                                            2024 三好学生<br>
+                                            2024 科技创新先进个人<br>
+                                            2024, 2025 优秀学生
+                                        </em>
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <br>
+                <div class="bottom-column">
+                    <hr>
+                    <p>
+                        <em style="color: rgb(98, 177, 128);font-size: 12px; padding-bottom: 0px">
+                            2024 国家奖学金 &#127894<br>
+                            2025 国家励志奖学金 &#127894<br>
+                            2024 三好学生<br>
+                            2024 科技创新先进个人<br>
+                            2024, 2025 优秀学生
+                        </em>
+                    </p>
+                </div>
+                <hr>
+                <p>
+                    你好，我是吕沁函。我目前是一名主修人工智能的研0学生 推免到中山大学航空航天学院，目前在中山大学HCP实验室担任科研助理，导师王可泽。我现在的工作 重点是VLM，agent还有VLA模型。与此同时，我正在进行市场调研，热衷于使用技术做一些市场认可的事情。
+                    <span class="thanks-line">特别感谢 Keze 教授和 Jusheng 师兄带我见识更大的世界。</span>
+                </p>
+                <div class="links">
+                    <a href="src/cv.pdf">&#128279 简历</a> &nbsp;·&nbsp;
+                    <a href="https://github.com/casar-lv">
+                        <img src="src/images/github-logo.png"
+                             alt="GitHub Logo" class="inline-icon">
+                        Github
+                    </a> &nbsp;·&nbsp;
+                    <a href="https://scholar.google.com.hk/citations?user=Jqyr_JQAAAAJ&hl=zh-CN">
+                        <img src="src/images/google-scholar-ico.png"
+                             alt="Google scholar Logo" class="inline-icon" style="width: 18px; height: 18px; ">
+                        谷歌学术</a> &nbsp;·&nbsp;
+                    <a href="mailto:kirinlv03@gmail.com">&#128231 邮箱</a>
+                </div>
+            </div>
+
+            <hr>
+            
+            <!-- 自动滚动照片墙 -->
+            <section id="PhotoWall"></section>
+            <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">
+                <tbody>
+                <tr>
+                    <td style="padding:0px;width:100%;vertical-align:middle">
+                        <div class="photo-wall-container">
+                            <div class="photo-wall">
+                                <div class="photo-item">
+                                    <img src="src/images/highlights/1.jpg" alt="Highlight 1">
+                                </div>
+                                <div class="photo-item">
+                                    <img src="src/images/highlights/2.jpg" alt="Highlight 2">
+                                </div>
+                                <div class="photo-item">
+                                    <img src="src/images/highlights/3.jpg" alt="Highlight 3">
+                                </div>
+                                <div class="photo-item">
+                                    <img src="src/images/highlights/4.jpg" alt="Highlight 4">
+                                </div>
+                                <div class="photo-item">
+                                    <img src="src/images/highlights/5.jpg" alt="Highlight 5">
+                                </div>
+                                <div class="photo-item">
+                                    <img src="src/images/highlights/6.jpg" alt="Highlight 6">
+                                </div>
+                                <div class="photo-item">
+                                    <img src="src/images/highlights/7.jpg" alt="Highlight 7">
+                                </div>
+                                <div class="photo-item">
+                                    <img src="src/images/highlights/8.jpg" alt="Highlight 8">
+                                </div>
+                                <div class="photo-item">
+                                    <img src="src/images/highlights/9.jpg" alt="Highlight 9">
+                                </div>
+                                
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <hr>
+
+            <section id="Awards"></section>
+            <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">
+                <tbody>
+                <tr>
+                    <td style="padding:20px;width:100%;vertical-align:middle">
+                        <h2><strong>获奖情况 🏆</strong></h2>
+                        <h3><strong>奖学金与荣誉</strong></strong></h3>
+                        <p>
+                            <strong>2024 国家奖学金</strong> &#127894<br>
+                            <strong>2025 国家励志奖学金</strong> &#127894<br>
+                            2024 三好学生<br>
+                            2024 科技创新先进个人<br>
+                            2024, 2025 优秀学生
+                        </p>
+
+                        <h3><strong>竞赛获奖</strong></strong></h3>
+                        <h4><strong>1) 国家级 & 国际级</strong></h4>
+                        <p>
+                            <strong>全国交通科技大赛</strong> <em style="color: rgb(160, 160, 160);font-size: smaller;">国家级一等奖 (2024)</em><br>
+                            <strong>全国大学生智能汽车竞赛（室外）</strong> <em style="color: rgb(160, 160, 160);font-size: smaller;">国际级二等奖 (2024)</em><br>
+                            <strong>中国国际大学生创新大赛</strong> <em style="color: rgb(160, 160, 160);font-size: smaller;">国家级铜奖 (2024)</em><br>
+                            <strong>全国大学生数字媒体科技作品及创意大赛</strong> <em style="color: rgb(160, 160, 160);font-size: smaller;">国家级三等奖 (2024)</em>
+                        </p>
+
+                        <h4><strong>2) 省部级 & 赛区级</strong></h4>
+                        <p>
+                            <strong>大唐杯新一代通信技术大赛</strong> <em style="color: rgb(160, 160, 160);font-size: smaller;">重庆市一等奖 (2024)</em><br>
+                            <strong>ICAN大学生创新创业大赛</strong> <em style="color: rgb(160, 160, 160);font-size: smaller;">重庆市一等奖 (2024)</em><br>
+                            <strong>全国大学生智能汽车竞赛（讯飞）</strong> <em style="color: rgb(160, 160, 160);font-size: smaller;">西部赛区二等奖 (2024)</em><br>
+                            <strong>川渝大学生（数智）作品设计大赛</strong> <em style="color: rgb(160, 160, 160);font-size: smaller;">重庆市二等奖 (2023)</em><br>
+                            <strong>大学生心理成长论坛</strong> <em style="color: rgb(160, 160, 160);font-size: smaller;">重庆市二等奖 (2024)</em><br>
+                            <strong>蓝桥杯程序算法竞赛(C++组别)</strong> <em style="color: rgb(160, 160, 160);font-size: smaller;">重庆市三等奖 (2023)</em><br>
+                            <strong>好创意暨全国数字艺术设计大赛</strong> <em style="color: rgb(160, 160, 160);font-size: smaller;">重庆市三等奖 (2024)</em><br>
+                            <strong>中国机器人及人工智能大赛（Aelos人形机器人）</strong> <em style="color: rgb(160, 160, 160);font-size: smaller;">重庆市三等奖 (2024)</em><br>
+                            <strong>睿抗机器人（夺宝联盟）</strong> <em style="color: rgb(160, 160, 160);font-size: smaller;">重庆市三等奖 (2024)</em><br>
+                            <strong>计算机设计大赛</strong> <em style="color: rgb(160, 160, 160);font-size: smaller;">重庆市三等奖 (2024)</em>
+                        </p>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <hr>
+            <section id="ResearchExperience"></section>
+            <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">
+                <tbody>
+                <tr>
+                    <td style="padding:20px;width:100%;vertical-align:middle">
+                        <h2><strong>经历 🔬</strong></h2>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">
+                <tbody>
+                <tr>
+                    <td style="padding:20px;width:100px;vertical-align:middle">
+                        <!-- Logo Image -->
+                        <img src="src/images/sysu.png" alt="SYSU Logo" style="width: 100%; height: auto;">
+                    </td>
+
+                    <td style="padding:20px;width:auto;vertical-align:middle">
+                        <p><strong style="font-size: larger;">中山大学 HCP实验室</strong>
+                            <br>
+                            <em>科研助理</em>
+                            <br>
+                            <br>
+                            导师：王可泽 教授。主要研究方向为 VLM, Agent 以及 VLA 模型。
+                            <br>
+                        </p>
+                        <p>
+                            广州, 中国. 2025/7 - 至今
+                        </p>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">
+                <tbody>
+                <tr>
+                    <td style="padding:20px;width:100px;vertical-align:middle">
+                        <!-- Logo Image -->
+                        <img src="src/images/pclab.png" alt="PCL Logo" style="width: 100%; height: auto;">
+                    </td>
+
+                    <td style="padding:20px;width:auto;vertical-align:middle">
+                        <p><strong style="font-size: larger;">鹏城实验室</strong>
+                            <br>
+                            <em>科研助理</em>
+                            <br>
+                            <br>
+                            研究方向：三维重建。
+                            <br>
+                        </p>
+                        <p>
+                            深圳, 中国. 2025/6 - 2025/7
+                        </p>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">
+                <tbody>
+                <tr>
+                    <td style="padding:20px;width:100px;vertical-align:middle">
+                        <!-- Logo Image -->
+                        <img src="src/images/myh.png" alt="Mingyue Logo" style="width: 100%; height: auto;">
+                    </td>
+
+                    <td style="padding:20px;width:auto;vertical-align:middle">
+                        <p><strong style="font-size: larger;">重庆明月湖国际智能产业科创基地</strong>
+                            <br>
+                            <em>实习生</em>
+                            <br>
+                            <br>
+                            研究方向：语音情感识别。Mentor：樊安斐。
+                            <br>
+                        </p>
+                        <p>
+                            重庆, 中国. 2025/3 - 2025/8
+                        </p>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">
+                <tbody>
+                <tr>
+                    <td style="padding:20px;width:100px;vertical-align:middle">
+                        <img src="src/images/cqjtu_logo.webp" alt="CQJTU Logo" style="width: 100%; height: auto;">
+                    </td>
+
+                    <td style="padding:20px;width:auto;vertical-align:middle">
+                        <p><strong style="font-size: larger;">重庆交通大学</strong>
+                            <br>
+                            <em>本科生</em>
+                            <br>
+                            <em>排名: 2/65 | GPA: 4.12/5.00</em>
+                            <br>
+                            <br>
+                            研究方向：图像分割，目标检测。
+                            <br>
+                        </p>
+                        <p>
+                            重庆, 中国. 2022/7 - 至今
+                        </p>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <hr>
+            <section id="Research"></section>
+            <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">
+                <tbody>
+                <tr>
+                    <td style="padding:20px;width:100%;vertical-align:middle">
+                        <h2><strong>研究 💡</strong></h2>
+                        <br>
+                        <h2 style="font-size:large;"><strong>兴趣:</strong></h2>
+                        <br>
+                        <div class="interest">
+                            · <em><strong>智能体 (Agent)</strong></em> 🤖
+                        </div>
+                        <br>
+                        <div class="interest">
+                            · <em><strong>视觉-语言-动作模型 (VLA)</strong></em> 🦾
+                        </div>
+                        <br>
+                        <div class="interest">
+                            · <em><strong>视觉-语言模型 (VLM)</strong></em> 👁️‍🗨️
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <section id="paper"></section>
+
+            <div class="paper-container">
+                <div class="image">
+                    <div class="slideshow-container" data-paper="rss">
+                        <!-- Images will be injected here by JS -->
+                        <div style="width:200px; height:150px; background:#eee; display:flex; align-items:center; justify-content:center;">Loading Images...</div>
+                    </div>
+                </div>
+                <div class="text">
+                    <span class="papertitle">视觉-语言-动作模型的稳定语言引导</span><br>
+                    <p>
+                        Z Zhan, Y Chen, J Zhou, <u><strong>Q Lv</strong></u>, H Liu, K Wang, L Lin, G Wang
+                    </p>
+                    <p style="text-align: justify; font-size: 0.95em;">
+                        <strong>摘要:</strong> 视觉-语言-动作 (VLA) 模型在通用机器人控制方面展现了令人印象深刻的能力；然而，它们对语言扰动极其敏感。我们发现了一种关键的“模态坍塌”现象，即强大的视觉先验压倒了稀疏的语言信号，导致智能体过拟合特定的指令措辞，而忽略了潜在的语义意图。为了解决这个问题，我们提出了残差语义引导 (Residual Semantic Steering, RSS)，这是一个将物理可供性与语义执行解耦的概率框架。RSS 引入了两项理论创新：(1) 蒙特卡洛句法积分 (Monte Carlo Syntactic Integration)，通过密集的、LLM 驱动的分布扩展来近似真实的语义后验；(2) 残差可供性引导 (Residual Affordance Steering)，一种双流解码机制，通过减去视觉可供性先验来显式隔离语言的因果影响。理论分析表明，RSS 有效地最大化了动作与意图之间的互信息，同时抑制了视觉干扰。在多种操作基准测试中的实证结果表明，RSS 实现了最先进的鲁棒性，即使在对抗性语言扰动下也能保持性能。
+                    </p>
+                    <strong>关键词: VLA, 视觉-语言-动作.</strong><br><br>
+                    <p>
+                        <strong class="buttom"><a href="https://arxiv.org/abs/2601.04052">[论文]</a></strong>
+                    </p>
+                    <div class="pub grey">
+                        <strong>Under Review</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-container">
+                <div class="image">
+                    <div class="slideshow-container" data-paper="mm_cot">
+                        <!-- Images will be injected here by JS -->
+                        <div style="width:200px; height:150px; background:#eee; display:flex; align-items:center; justify-content:center;">Loading Images...</div>
+                    </div>
+                </div>
+                <div class="text">
+                    <span class="papertitle">Mm-cot：探究多模态模型中视觉思维链推理的基准</span><br>
+                    <p>
+                        J Zhang, K Cai, X Guo, S Liu, <u><strong>Q Lv</strong></u>, R Chen, J Yang, Y Fan, X Sun, ...
+                    </p>
+                    <p style="text-align: justify; font-size: 0.95em;">
+                        <strong>摘要:</strong> 进行思维链 (Chain-of-Thought, CoT) 推理的能力标志着多模态模型 (MMs) 的一个重要里程碑，使其能够解决复杂的视觉推理问题。然而，一个关键问题仍然存在：这种推理是否真正基于视觉证据并且逻辑连贯？现有的基准测试强调生成，但忽视了验证，即评估推理链是否既视觉一致又逻辑有效的能力。为了填补这一空白，我们推出了 MM-CoT，这是一个专门设计的诊断基准，用于探究 MMs 中 CoT 推理的视觉基础和逻辑连贯性。模型不再生成自由格式的解释，而是必须选择满足两个正交约束的唯一事件链：(i) 视觉一致性，确保所有步骤都基于可观察的证据；(ii) 逻辑连贯性，确保因果和常识的有效性。我们设计了对抗性干扰项来违反其中一个约束，从而暴露出不同的推理失败。我们在 MM-CoT 上评估了领先的视觉-语言模型，发现即使是最先进的系统也面临困难，揭示了生成流畅性与真实推理保真度之间的巨大差异。MM-CoT 与现有基准测试的相关性较低，证实了它衡量的是视觉基础和逻辑推理的独特组合。该基准为开发未来模型奠定了基础，这些模型不仅推理看似合理，而且在视觉世界中忠实且连贯。
+                    </p>
+                    <strong>关键词: 多模态, 思维链.</strong><br><br>
+                    <p>
+                        <strong class="buttom"><a href="https://arxiv.org/abs/2512.08228">[论文]</a></strong>
+                    </p>
+                    <div class="pub grey">
+                        <strong>Under Review</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-container">
+                <div class="image">
+                    <div class="slideshow-container" data-paper="htc_vlm">
+                        <!-- Images will be injected here by JS -->
+                        <div style="width:200px; height:150px; background:#eee; display:flex; align-items:center; justify-content:center;">Loading Images...</div>
+                    </div>
+                </div>
+                <div class="text">
+                    <span class="papertitle">Hybridtoken-vlm：视觉-语言模型的混合 Token 压缩</span><br>
+                    <p>
+                        J Zhang, X Guo, K Cai, <u><strong>Q Lv</strong></u>, Y Fan, W Chai, J Wang, K Wang
+                    </p>
+                    <p style="text-align: justify; font-size: 0.95em;">
+                        <strong>摘要:</strong> 视觉-语言模型 (VLMs) 彻底改变了多模态推理，但将数百个视觉 patch token 输入到 LLM 会产生二次计算成本，从而使得内存和上下文窗口紧张。传统方法面临着权衡：连续压缩会稀释如物体身份等高级语义，而离散量化则会丢失如纹理等细粒度细节。我们引入了 HTC-VLM，这是一种混合框架，通过双通道解耦语义和外观，即通过 ViT patch 进行细粒度细节的连续通道，以及通过投影到四个 token 的 MGVQ 量化进行符号锚点的离散通道。这些被融合到一个 580 token 的混合序列中，并通过解耦注意力掩码和瓶颈压缩成单个 voco token，确保高效且有根据的表示。HTC-VLM 在七个基准测试 (GQA, VQAv2, MMBench, MME, POPE, SEED-Bench, ScienceQA-Image) 中实现了 87.2% 的平均性能保留，在 580:1 的压缩比下优于领先的连续基线模型 (81.0%)。注意力分析表明，压缩后的 token 优先考虑离散锚点，验证了其语义指导作用。我们的工作表明，极简的混合设计可以解决效率-保真度的困境，并推动可扩展 VLM 的发展。
+                    </p>
+                    <strong>关键词: VLM, Token压缩.</strong><br><br>
+                    <p>
+                        <strong class="buttom"><a href="https://arxiv.org/abs/2512.08240">[论文]</a></strong>
+                    </p>
+                    <div class="pub grey">
+                        <strong>Under Review</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-container">
+                <div class="image">
+                    <div class="slideshow-container" data-paper="hiva">
+                        <!-- Images will be injected here by JS -->
+                        <div style="width:200px; height:150px; background:#eee; display:flex; align-items:center; justify-content:center;">Loading Images...</div>
+                    </div>
+                </div>
+                <div class="text">
+                    <span class="papertitle">Hiva：基于目标驱动语义-拓扑演化的自组织分层可变智能体</span><br>
+                    <p>
+                        J Tang*, J Zhang*, <u><strong>Q Lv*</strong></u>, S Liu, J Yang, C Tang, K Wang
+                    </p>
+                    <p>
+                        AAAI Conference on Artificial Intelligence (AAAI), 2026 (Poster)
+                    </p>
+                    <p style="text-align: justify; font-size: 0.95em;">
+                        <strong>摘要:</strong> 自主智能体在推进通用人工智能方面发挥着至关重要的作用，通过大型语言模型 (LLM) 实现问题分解和工具编排。然而，现有的范式面临着关键的权衡。一方面，可重用的固定工作流在环境变化时需要手动重新配置；另一方面，灵活的反应循环无法将推理过程提炼为可迁移的结构。我们引入了分层变量智能体 (Hierarchical Variable Agent, HiVA)，这是一个新颖的框架，利用语义-拓扑演化 (Semantic-Topological Evolution, STEV) 算法将智能体工作流建模为自组织图，该算法使用文本梯度作为反向传播的离散域代理，优化混合语义-拓扑空间。该迭代过程包括融入多臂老虎机的前向路由、从环境反馈生成的诊断梯度，以及协同进化个体语义和拓扑结构的协调更新，以在未知环境中实现集体优化。在对话、编码、长上下文问答、数学和智能体基准测试中的实验表明，任务准确率提高了 5-10%，资源效率也优于现有基线，确立了 HiVA 在自主任务执行方面的有效性。
+                    </p>
+                    <strong>关键词: 智能体, 分层变量.</strong><br><br>
+                    <p>
+                        <strong class="buttom"><a href="https://arxiv.org/abs/2509.00189">[论文]</a></strong>
+                        <strong class="buttom"><a href="https://github.com/tangjzh/HiVA">[代码]</a></strong>
+                    </p>
+                    <div class="pub green">
+                        <strong>AAAI 2026</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-container">
+                <div class="image">
+                    <div class="slideshow-container" data-paper="coagent">
+                        <!-- Images will be injected here by JS -->
+                        <div style="width:200px; height:150px; background:#eee; display:flex; align-items:center; justify-content:center;">Loading Images...</div>
+                    </div>
+                </div>
+                <div class="text">
+                    <span class="papertitle">CoAgent：用于连贯视频生成的协同规划与一致性智能体</span><br>
+                    <p>
+                        Q Zeng, K Cai, R Chen, <u><strong>Q Lv</strong></u>, K Wang
+                    </p>
+                    <p style="text-align: justify; font-size: 0.95em;">
+                        <strong>摘要:</strong> 保持叙事连贯性和视觉一致性仍然是开放域视频生成的中心挑战。现有的文本到视频模型通常独立处理每个镜头，导致身份漂移、场景不一致和时间结构不稳定。我们提出了 CoAgent，一个用于连贯视频生成的协作闭环框架，将该过程公式化为计划-合成-验证管道。给定用户提示、风格参考和节奏约束，故事板规划器将输入分解为具有明确实体、空间关系和时间线索的结构化镜头级计划。全局上下文管理器维护实体级记忆，以保持跨镜头的外观和身份一致性。然后，每个镜头在视觉一致性控制器的指导下由合成模块生成，同时验证智能体使用视觉-语言推理评估中间结果，并在检测到不一致时触发选择性重新生成。最后，节奏感知编辑器优化时间节奏和过渡，以匹配所需的叙事流程。广泛的实验表明，CoAgent 显著提高了长视频生成中的连贯性、视觉一致性和叙事质量。
+                    </p>
+                    <strong>关键词: 智能体, 视频生成.</strong><br><br>
+                    <p>
+                        <strong class="buttom"><a href="https://arxiv.org/abs/2512.22536">[论文]</a></strong>
+                    </p>
+                    <div class="pub blue">
+                        <strong>arXiv</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-container">
+                <div class="image">
+                    <div class="slideshow-container" data-paper="e0">
+                        <!-- Images will be injected here by JS -->
+                        <div style="width:200px; height:150px; background:#eee; display:flex; align-items:center; justify-content:center;">Loading Images...</div>
+                    </div>
+                </div>
+                <div class="text">
+                    <span class="papertitle">通过连续化离散扩散增强 VLA 模型的泛化与细粒度控制</span><br>
+                    <p>
+                        Z Zhan, J Zhou, L Zhang, <u><strong>Q Lv</strong></u>, H Liu, J Zhang, W Li, Z Chen, T Chen, ...
+                    </p>
+                    <p style="text-align: justify; font-size: 0.95em;">
+                        <strong>摘要:</strong> 视觉-语言-动作 (VLA) 模型通过集成视觉感知、语言理解和控制生成，为机器人操作提供了一个统一的框架。然而，现有的 VLA 模型仍然难以在不同的任务、场景和相机视点之间泛化，并且通常产生粗糙或不稳定的动作。我们引入了 E0，一种连续化离散扩散框架，将动作生成公式化为量化动作 token 上的迭代去噪。与连续扩散策略相比，E0 提供了两个关键优势：(1) 离散动作 token 与预训练 VLM/VLA 主干的符号结构自然对齐，实现了更强的语义条件；(2) 离散扩散匹配真实世界机器人控制的真实量化本质——其硬件约束（例如编码器分辨率、控制频率、致动延迟）固有地离散化了连续信号——因此受益于对正确离散动作分布进行建模的贝叶斯最优去噪器，从而导致更强的泛化能力。与离散自回归和基于掩码的离散扩散模型相比，E0 支持更大且更细粒度的动作词汇表，并避免了基于掩码的破坏引入的分布不匹配——从而产生更准确的细粒度动作控制。我们进一步引入了一种球形视点扰动增强方法，以在没有额外数据的情况下提高对相机位移的鲁棒性。在 LIBERO、VLABench 和 ManiSkill 上的实验表明，E0 在 14 个不同的环境中实现了最先进的性能，平均优于强大的基线 10.7%。在 Franka 机械臂上的真实世界评估证实，E0 提供了精确、鲁棒且可迁移的操作，确立了离散扩散作为可泛化 VLA 策略学习的有前途的方向。
+                    </p>
+                    <strong>关键词: VLA, 扩散模型.</strong><br><br>
+                    <p>
+                        <strong class="buttom"><a href="https://arxiv.org/abs/2511.21542">[论文]</a></strong>
+                    </p>
+                    <div class="pub grey">
+                        <strong>Under Review</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-container">
+                <div class="image">
+                    <div class="slideshow-container" data-paper="veme">
+                        <!-- Images will be injected here by JS -->
+                        <div style="width:200px; height:150px; background:#eee; display:flex; align-items:center; justify-content:center;">Loading Images...</div>
+                    </div>
+                </div>
+                <div class="text">
+                    <span class="papertitle">超越像素：通过时空对齐为基于视频的具身模型引入几何-语义世界先验</span><br>
+                    <p>
+                        J Tang, S Liu, W Xiu, <u><strong>Q Lv</strong></u>, X Li
+                    </p>
+                    <p style="text-align: justify; font-size: 0.95em;">
+                        <strong>摘要:</strong> 在未知环境中完成复杂任务的深度学习模型中实现类人推理仍然是具身智能的一个关键挑战。虽然先进的视觉-语言模型 (VLMs) 在静态场景理解方面表现出色，但由于对细粒度时空线索和物理世界理解的建模不足，它们在时空推理以及适应如任务导向导航和具身问答 (EQA) 等动态开放集任务方面的局限性依然存在。为了解决这个问题，我们提出了 VEME，一种新颖的跨模态对齐方法，通过学习以自我为中心、以体验为中心的世界模型来增强在未见场景中的泛化能力。我们的框架集成了三个关键组件：(1) 一个跨模态对齐框架，将物体、空间表示和视觉语义与时空线索桥接起来，以增强 VLM 的上下文学习；(2) 一个由世界嵌入激活的动态隐式认知地图，以实现任务相关的几何-语义记忆召回；(3) 一个利用具身先验进行长期规划和高效探索的基于指令的导航和推理框架。通过嵌入几何感知的时空情景体验，我们的方法显著提高了动态环境中的推理和规划能力。在 VSI-Bench 和 VLN-CE 上的实验结果表明，与传统方法相比，准确率和探索效率提高了 1%-3%。
+                    </p>
+                    <strong>关键词: 具身智能, 世界先验.</strong><br><br>
+                    <p>
+                        <strong class="buttom"><a href="https://arxiv.org/abs/2509.00210">[论文]</a></strong>
+                    </p>
+                    <div class="pub blue">
+                        <strong>arXiv</strong>
+                    </div>
+                </div>
+            </div>
+
+            <hr>
+            <section id="Projects"></section>
+            <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">
+                <tbody>
+                <tr>
+                    <td style="padding:20px;width:100%;vertical-align:middle">
+                        <h2><strong>项目 📂</strong></h2>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div class="paper-container">
+                <div class="image">
+                    <div class="slideshow-container" data-project="innovation">
+                        <!-- Images will be injected here by JS -->
+                        <div style="width:200px; height:150px; background:#eee; display:flex; align-items:center; justify-content:center;">Loading Images...</div>
+                    </div>
+                </div>
+                <div class="text">
+                    <div class="papertitle">落水检测</div>
+                    <p>
+                        构建基于视觉的落水检测系统，融合目标检测与姿态估计识别异常姿态，并实现水域场景下的实时告警。
+                    </p>
+                    <strong>关键词: 目标检测, 姿态估计</strong><br><br>
+                    <div class="pub">
+                        国家级大学生创新创业项目
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-container">
+                <div class="image">
+                    <div class="slideshow-container" data-project="smart_car">
+                        <!-- Images will be injected here by JS -->
+                        <div style="width:200px; height:150px; background:#eee; display:flex; align-items:center; justify-content:center;">Loading Images...</div>
+                    </div>
+                </div>
+                <div class="text">
+                    <div class="papertitle">智能车比赛</div>
+                    <p>
+                        设计自动循迹与控制策略，实现赛道稳定跟踪与无人驾驶运行，适配复杂赛道场景。
+                    </p>
+                    <strong>关键词: 循迹算法, 无人驾驶</strong><br><br>
+                    <div class="pub">
+                        国家级比赛
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-container">
+                <div class="image">
+                    <div class="slideshow-container" data-project="tobacco">
+                        <!-- Images will be injected here by JS -->
+                        <div style="width:200px; height:150px; background:#eee; display:flex; align-items:center; justify-content:center;">Loading Images...</div>
+                    </div>
+                </div>
+                <div class="text">
+                    <div class="papertitle">烟草土壤保育</div>
+                    <p>
+                        基于宏基因组数据分析土壤微生物群落，构建生物信息流程评估土壤健康并支持保育决策。
+                    </p>
+                    <strong>关键词: 宏基因组, 生物信息</strong><br><br>
+                    <div class="pub">
+                        烟草局横向
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-container">
+                <div class="image">
+                    <div class="slideshow-container" data-project="robotic_arm">
+                        <!-- Images will be injected here by JS -->
+                        <div style="width:200px; height:150px; background:#eee; display:flex; align-items:center; justify-content:center;">Loading Images...</div>
+                    </div>
+                </div>
+                <div class="text">
+                    <div class="papertitle">机械臂横向</div>
+                    <p>
+                        面向具身智能应用，开发机械臂感知与任务执行方案，推动场景化商业落地。
+                    </p>
+                    <strong>关键词: 具身智能, 商业落地</strong><br><br>
+                    <div class="pub">
+                        拓元公司横向
+                    </div>
+                </div>
+            </div>
+
+            <hr>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

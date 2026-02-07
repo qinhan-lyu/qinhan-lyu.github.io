@@ -1,0 +1,997 @@
+<!DOCTYPE HTML>
+
+<html lang="en" xmlns="">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Kirin Lyu</title>
+    <meta name="author" content="Kirin Lyu">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="css/desktop.css" media="screen and (min-width: 601px)">
+    <link rel="stylesheet" href="css/mobile.css" media="screen and (max-width: 600px)">
+    <link rel="stylesheet" href="css/slideshow.css">
+    <style>
+        /* 移除 alert_bar 相关样式 */
+        /* Media query to hide the right column when screen width is less than 600px */
+        @media (max-width: 600px) {
+            .right-column {
+                display: none;
+            }
+
+            .bottom-column {
+                display: block;
+            }
+        }
+
+        .inline-icon {
+            vertical-align: middle; /* 使图标与文本对齐 */
+            width: 24px; /* 设置图标的宽度 */
+            height: 24px; /* 设置图标的高度 */
+            margin-bottom: 4px;
+        }
+
+        @media (min-width: 600px) {
+            .right-column {
+                display: block;
+            }
+
+            .bottom-column {
+                display: none;
+            }
+        }
+
+        /* 照片墙样式 */
+        .photo-wall-container {
+            width: 100%;
+            overflow: hidden;
+            margin: 20px 0;
+            position: relative;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 10%, rgba(255,255,255,0.1) 90%, transparent 100%);
+            border-radius: 0;
+            padding: 24px 0;
+            height: 230px; /* 增加高度以适应更大的图片 */
+            max-width: 100%; /* 确保不超出容器宽度 */
+            box-sizing: border-box; /* 确保padding不会增加总宽度 */
+            z-index: 1; 
+        }
+
+        .photo-wall-container::before,
+        .photo-wall-container::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 50px;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .photo-wall-container::before {
+            left: 0;
+            background: linear-gradient(90deg, rgba(255,255,255,1) 0%, transparent 100%);
+        }
+
+        .photo-wall-container::after {
+            right: 0;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,1) 100%);
+        }
+
+        .photo-wall {
+            display: flex;
+            animation: scroll 50s linear infinite;
+            width: max-content;
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            align-items: center;
+            will-change: transform;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            transform: translate3d(0, 0, 0);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .photo-item {
+            flex-shrink: 0;
+            margin: 0 5px;
+            border-radius: 0;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            max-width: 260px; /* 限制最大宽度 */
+            will-change: transform;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+
+        .photo-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .photo-item img {
+            width: 260px;
+            height: 195px;
+            object-fit: cover;
+            display: block;
+        }
+
+        @keyframes scroll {
+            0% {
+                transform: translate3d(0, 0, 0);
+            }
+            100% {
+                transform: translate3d(-50%, 0, 0);
+            }
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 600px) {
+            .photo-item img {
+                width: 190px;
+                height: 140px;
+            }
+            
+            .photo-wall {
+                animation-duration: 25s;
+            }
+
+            .photo-wall-container::before,
+            .photo-wall-container::after {
+                width: 30px;
+            }
+
+            .photo-wall-container {
+                padding: 18px 0;
+                height: 170px; /* 移动端增加高度 */
+            }
+        }
+
+        /* 超小屏幕适配 */
+        @media (max-width: 400px) {
+            .photo-item img {
+                width: 170px;
+                height: 125px;
+            }
+            
+            .photo-wall {
+                animation-duration: 20s;
+            }
+
+            .photo-wall-container {
+                height: 155px; /* 超小屏幕增加高度 */
+            }
+        }
+
+        /* 滚动形式描述容器样式 */
+        .description-container {
+            position: relative;
+            overflow-y: auto;
+            overflow-x: hidden;
+            max-height: var(--image-height, 200px);
+            padding-right: 10px;
+            margin-right: -10px;
+            /* 自定义滚动条样式 - Firefox */
+            scrollbar-width: thin;
+            scrollbar-color: #1f8a6a #f1f1f1;
+        }
+
+        /* 自定义滚动条样式 - Chrome/Safari/Edge */
+        .description-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .description-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+            margin: 2px 0;
+        }
+
+        .description-container::-webkit-scrollbar-thumb {
+            background: #1f8a6a;
+            border-radius: 4px;
+            transition: background 0.2s ease;
+        }
+
+        .description-container::-webkit-scrollbar-thumb:hover {
+            background: #166e55;
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 600px) {
+            .description-container {
+                padding-right: 8px;
+                margin-right: -8px;
+                scrollbar-width: thin;
+                scrollbar-color: #1f8a6a #f1f1f1;
+            }
+
+            .description-container::-webkit-scrollbar {
+                width: 5px;
+            }
+        }
+    </style>
+    <script>
+        // 滚动形式描述容器功能
+        document.addEventListener("DOMContentLoaded", function() {
+            // 找到Research和Projects section
+            const researchSection = document.getElementById('Research');
+            const projectsSection = document.getElementById('Projects');
+            const paperSection = document.getElementById('paper');
+            
+            // 获取所有paper-container
+            const allContainers = document.querySelectorAll('.paper-container');
+            const targetContainers = [];
+            
+            // 找到Research section后的所有paper-container（直到Projects section）
+            if (researchSection || paperSection) {
+                const startSection = paperSection || researchSection;
+                let element = startSection.nextElementSibling;
+                while (element) {
+                    if (element === projectsSection) break;
+                    if (element.classList && element.classList.contains('paper-container')) {
+                        targetContainers.push(element);
+                    }
+                    element = element.nextElementSibling;
+                }
+            }
+            
+            // 找到Projects section后的所有paper-container
+            if (projectsSection) {
+                let element = projectsSection.nextElementSibling;
+                while (element) {
+                    if (element.classList && element.classList.contains('paper-container')) {
+                        targetContainers.push(element);
+                    }
+                    element = element.nextElementSibling;
+                }
+            }
+            
+            targetContainers.forEach((container) => {
+                const imageDiv = container.querySelector('.image');
+                const textDiv = container.querySelector('.text');
+                const mediaElement = imageDiv ? imageDiv.querySelector('img, .slideshow-container') : null;
+                
+                if (!mediaElement || !textDiv) return;
+                
+                // 找到描述段落（通常是包含长文本的p标签，排除作者和链接部分）
+                const paragraphs = textDiv.querySelectorAll('p');
+                let descriptionP = null;
+                
+                // 找到最长的段落作为描述段落（排除包含链接按钮的段落）
+                paragraphs.forEach(p => {
+                    const text = p.textContent.trim();
+                    const hasLinkButton = p.querySelector('strong.buttom') || p.querySelector('a[href]');
+                    if (text.length > 100 && !hasLinkButton) {
+                        if (!descriptionP || text.length > descriptionP.textContent.trim().length) {
+                            descriptionP = p;
+                        }
+                    }
+                });
+                
+                if (!descriptionP) return;
+                
+                // 创建滚动容器
+                const wrapper = document.createElement('div');
+                wrapper.className = 'description-container';
+                descriptionP.parentNode.insertBefore(wrapper, descriptionP);
+                wrapper.appendChild(descriptionP);
+                
+                // 设置高度为图片高度
+                function setHeight() {
+                    const fixedHeight = 300;
+                    const mediaHeight = mediaElement.offsetHeight || fixedHeight;
+                    const targetHeight = Math.max(fixedHeight, mediaHeight);
+                    wrapper.style.setProperty('--image-height', targetHeight + 'px');
+                    wrapper.style.maxHeight = targetHeight + 'px';
+                }
+                
+                setHeight();
+                
+                // 窗口大小改变时重新计算
+                let resizeTimer;
+                window.addEventListener('resize', function() {
+                    clearTimeout(resizeTimer);
+                    resizeTimer = setTimeout(setHeight, 250);
+                });
+            });
+        });
+
+        // 照片墙交互控制
+        document.addEventListener("DOMContentLoaded", function() {
+            const photoWall = document.querySelector('.photo-wall');
+            const photoWallContainer = document.querySelector('.photo-wall-container');
+            
+            if (photoWall && photoWallContainer) {
+                // 复制照片项以实现无缝循环
+                const originalItems = photoWall.querySelectorAll('.photo-item');
+                if (originalItems.length > 0) {
+                    // 克隆所有照片项
+                    originalItems.forEach(item => {
+                        const clone = item.cloneNode(true);
+                        photoWall.appendChild(clone);
+                    });
+                }
+                
+                // 鼠标悬停时暂停动画
+                photoWallContainer.addEventListener('mouseenter', function() {
+                    photoWall.style.animationPlayState = 'paused';
+                });
+                
+                // 鼠标离开时恢复动画
+                photoWallContainer.addEventListener('mouseleave', function() {
+                    photoWall.style.animationPlayState = 'running';
+                });
+                
+                // 点击图片时放大显示（包括克隆的图片）
+                photoWallContainer.addEventListener('click', function(e) {
+                    const photoItem = e.target.closest('.photo-item');
+                    if (photoItem) {
+                        const img = photoItem.querySelector('img');
+                        if (img) {
+                            // 创建模态框显示大图
+                            const modal = document.createElement('div');
+                            modal.style.cssText = `
+                                position: fixed;
+                                top: 0;
+                                left: 0;
+                                width: 100%;
+                                height: 100%;
+                                background: rgba(0, 0, 0, 0.8);
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                                z-index: 1000;
+                                cursor: pointer;
+                            `;
+                            
+                            const modalImg = document.createElement('img');
+                            modalImg.src = img.src;
+                            modalImg.style.cssText = `
+                                max-width: 90%;
+                                max-height: 90%;
+                                object-fit: contain;
+                                border-radius: 8px;
+                            `;
+                            
+                            modal.appendChild(modalImg);
+                            document.body.appendChild(modal);
+                            
+                            // 点击模态框关闭
+                            modal.addEventListener('click', function() {
+                                document.body.removeChild(modal);
+                            });
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+    <script src="js/slideshow.js"></script>
+</head>
+
+<body>
+
+<div class="mobile-component">
+    <ul>
+        <li><a href="#Top"><strong>Kirin Lyu</strong></a></li>&nbsp;·&nbsp;
+        <li><a href="#ResearchExperience">🔬</a></li>&nbsp;·&nbsp;
+        <!--         <li><a href="#Education">📚</a></li>&nbsp;·&nbsp;-->
+        <li><a href="#Research">💡</a></li>&nbsp;·&nbsp;
+        <li><a href="#Projects">📂</a></li>&nbsp;·&nbsp;
+        <li><a href="#Awards">🏆</a></li>&nbsp;·&nbsp;
+        <li><a href="index_zh.html">中文</a></li>
+    </ul>
+</div>
+
+<div class="desktop-component">
+    <ul>
+        <li><a href="#Top" style="font-size: x-large;"><strong>Kirin Lyu</strong></a></li>&nbsp;·&nbsp;
+        <li><a href="#ResearchExperience">Experience</a></li>&nbsp;·&nbsp;
+        <li><a href="#Research">Research</a></li>&nbsp;·&nbsp;
+        <li><a href="#Projects">Projects</a></li>&nbsp;·&nbsp;
+        <li><a href="#Awards">Awards</a></li>&nbsp;·&nbsp;
+        <li><a href="index_zh.html">中文</a></li>
+    </ul>
+</div>
+
+<script>
+    // Get the height of the mobile and desktop navigation bars
+    var navbarHeightMobile = document.querySelector('.mobile-component ul').offsetHeight;
+    var navbarHeightDesktop = document.querySelector('.desktop-component ul').offsetHeight;
+
+    // Add click event listeners to navigation links
+    document.querySelectorAll('.mobile-component ul li a, .desktop-component ul li a, .a').forEach(function (anchor) {
+        anchor.addEventListener('click', function (event) {
+            
+            // 如果是切换语言的链接，不要阻止默认行为
+            if(this.getAttribute('href').indexOf('.html') !== -1) {
+                return;
+            }
+
+            event.preventDefault(); // Prevent the default navigation behavior
+
+            var targetId = this.getAttribute('href'); // Get the target section's ID from the link's href
+            var targetElement = document.querySelector(targetId); // Find the target element using its ID
+            var targetOffsetTop = targetElement.offsetTop; // Get the target's top offset relative to the document
+
+            // Calculate scroll position considering the navigation bar height to avoid overlap
+            var navbarHeight = (window.innerWidth < 768) ? navbarHeightMobile : navbarHeightDesktop;
+            window.scrollTo({
+                top: targetOffsetTop - navbarHeight,
+                behavior: 'smooth' // Smooth scroll to the target position
+            });
+        });
+    });
+</script>
+
+<section id="Top"></section>
+<table style="width:100%;max-width:1120px;margin:auto;padding-top: 30px;">
+    <tbody>
+    <tr style="padding:0px">
+        <td style="padding:0px">
+            <div class="bio">
+                <div class="face-name">
+                    <img src="src/images/profile.jpg" alt="profile photo" class="profile-img">
+                    <div class="name-info">
+                        <table style="width: 100%;">
+                            <tr>
+                                <td style="vertical-align: auto; width: auto; padding-right: 20px;">
+                                    <p>
+                                        吕沁函 <br>
+                                        Kirin Lyu<br>
+                                    </p>
+                                </td>
+                                <td class="right-column" style="vertical-align: auto; width: auto; padding-left: 20px;">
+                                    <p>
+                                        <em style="color: rgb(91, 206, 152);font-size: 12px; padding-bottom: 0px">
+                                            2024 National Undergraduate Scholarship &#127894<br>
+                                            2025 National Inspirational Scholarship &#127894<br>
+                                            2024 Model Student<br>
+                                            2024 Advanced Individual in Technology<br>
+                                            2024, 2025 Outstanding Student
+                                        </em>
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <br>
+                <div class="bottom-column">
+                    <hr>
+                    <p>
+                        <em style="color: rgb(160, 160, 160);font-size: 12px; padding-bottom: 0px">
+                            2024 National Undergraduate Scholarship &#127894<br>
+                            2025 National Inspirational Scholarship &#127894<br>
+                            2024 Model Student<br>
+                            2024 Advanced Individual in Technology<br>
+                            2024, 2025 Outstanding Student
+                        </em>
+                    </p>
+                </div>
+                <hr>
+                <p>
+                    Hello, I am Kirin Lyu. I am currently an incoming graduate student majoring in Artificial Intelligence, admitted to the School of Aeronautics and Astronautics at Sun Yat-sen University. I am working as a Research Assistant at the HCP Lab, Sun Yat-sen University, advised by Prof. Keze Wang. My current research focuses on VLM, Agents, and VLA models. Meanwhile, I am conducting market research and am passionate about leveraging technology to create value recognized by the market.
+                    <span class="thanks-line">Special thanks to Prof. Keze Wang and senior Jusheng for broadening my horizons.</span>
+                </p>
+                <div class="links">
+                    <a href="src/cv.pdf">&#128279 CV</a> &nbsp;·&nbsp;
+                    <a href="https://github.com/casar-lv">
+                        <img src="src/images/github-logo.png"
+                             alt="GitHub Logo" class="inline-icon">
+                        Github
+                    </a> &nbsp;·&nbsp;
+                    <a href="https://scholar.google.com.hk/citations?user=Jqyr_JQAAAAJ&hl=zh-CN">
+                        <img src="src/images/google-scholar-ico.png"
+                             alt="Google scholar Logo" class="inline-icon" style="width: 18px; height: 18px; ">
+                        Google Scholar</a> &nbsp;·&nbsp;
+                    <a href="mailto:kirinlv03@gmail.com">&#128231 Email</a>
+                </div>
+            </div>
+
+            <hr>
+            
+            <!-- 自动滚动照片墙 -->
+            <section id="PhotoWall"></section>
+            <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">
+                <tbody>
+                <tr>
+                    <td style="padding:0px;width:100%;vertical-align:middle">
+                        <div class="photo-wall-container">
+                            <div class="photo-wall">
+                                <div class="photo-item">
+                                    <img src="src/images/highlights/1.jpg" alt="Highlight 1">
+                                </div>
+                                <div class="photo-item">
+                                    <img src="src/images/highlights/2.jpg" alt="Highlight 2">
+                                </div>
+                                <div class="photo-item">
+                                    <img src="src/images/highlights/3.jpg" alt="Highlight 3">
+                                </div>
+                                <div class="photo-item">
+                                    <img src="src/images/highlights/4.jpg" alt="Highlight 4">
+                                </div>
+                                <div class="photo-item">
+                                    <img src="src/images/highlights/5.jpg" alt="Highlight 5">
+                                </div>
+                                <div class="photo-item">
+                                    <img src="src/images/highlights/6.jpg" alt="Highlight 6">
+                                </div>
+                                <div class="photo-item">
+                                    <img src="src/images/highlights/7.jpg" alt="Highlight 7">
+                                </div>
+                                <div class="photo-item">
+                                    <img src="src/images/highlights/8.jpg" alt="Highlight 8">
+                                </div>
+                                <div class="photo-item">
+                                    <img src="src/images/highlights/9.jpg" alt="Highlight 9">
+                                </div>
+                                
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <hr>
+
+            <section id="Awards"></section>
+            <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">
+                <tbody>
+                <tr>
+                    <td style="padding:20px;width:100%;vertical-align:middle">
+                        <h2><strong>Awards 🏆</strong></h2>
+                        <h3><strong>Scholarships & Honors</strong></strong></h3>
+                        <p>
+                            <strong>2024 National Undergraduate Scholarship</strong> &#127894<br>
+                            <strong>2025 National Inspirational Scholarship</strong> &#127894<br>
+                            2024 Model Student<br>
+                            2024 Advanced Individual in Technology<br>
+                            2024, 2025 Outstanding Student
+                        </p>
+
+                        <h3><strong>Competition Awards</strong></strong></h3>
+                        <h4><strong>1) International & National</strong></h4>
+                        <p>
+                            <strong>National Traffic Science and Technology Competition</strong> <em style="color: rgb(160, 160, 160);font-size: smaller;">National First Prize (2024)</em><br>
+                            <strong>National Undergraduate Smart Car Competition (Outdoor)</strong> <em style="color: rgb(160, 160, 160);font-size: smaller;">International Second Prize (2024)</em><br>
+                            <strong>China International College Students' Innovation Competition</strong> <em style="color: rgb(160, 160, 160);font-size: smaller;">National Bronze Award (2024)</em><br>
+                            <strong>National College Student Digital Media Technology Works and Creativity Competition</strong> <em style="color: rgb(160, 160, 160);font-size: smaller;">National Third Prize (2024)</em>
+                        </p>
+
+                        <h4><strong>2) Provincial & Regional</strong></h4>
+                        <p>
+                            <strong>"Datang Cup" New Generation ICT Competition</strong> <em style="color: rgb(160, 160, 160);font-size: smaller;">Chongqing First Prize (2024)</em><br>
+                            <strong>iCAN International Contest of Innovation</strong> <em style="color: rgb(160, 160, 160);font-size: smaller;">Chongqing First Prize (2024)</em><br>
+                            <strong>National Undergraduate Smart Car Competition (iFLYTEK)</strong> <em style="color: rgb(160, 160, 160);font-size: smaller;">Western Region Second Prize (2024)</em><br>
+                            <strong>Sichuan-Chongqing College Students (Digital Intelligence) Works Design Competition</strong> <em style="color: rgb(160, 160, 160);font-size: smaller;">Chongqing Second Prize (2023)</em><br>
+                            <strong>College Student Psychological Growth Forum</strong> <em style="color: rgb(160, 160, 160);font-size: smaller;">Chongqing Second Prize (2024)</em><br>
+                            <strong>Lanqiao Cup Programming Contest (C++ Group)</strong> <em style="color: rgb(160, 160, 160);font-size: smaller;">Chongqing Third Prize (2023)</em><br>
+                            <strong>National Digital Art Design Competition</strong> <em style="color: rgb(160, 160, 160);font-size: smaller;">Chongqing Third Prize (2024)</em><br>
+                            <strong>China Robotics and Artificial Intelligence Competition (Aelos)</strong> <em style="color: rgb(160, 160, 160);font-size: smaller;">Chongqing Third Prize (2024)</em><br>
+                            <strong>RAICOM Robotics Developer Competition (Treasure Alliance)</strong> <em style="color: rgb(160, 160, 160);font-size: smaller;">Chongqing Third Prize (2024)</em><br>
+                            <strong>Chinese Collegiate Computing Competition</strong> <em style="color: rgb(160, 160, 160);font-size: smaller;">Chongqing Third Prize (2024)</em>
+                        </p>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <hr>
+            <section id="ResearchExperience"></section>
+            <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">
+                <tbody>
+                <tr>
+                    <td style="padding:20px;width:100%;vertical-align:middle">
+                        <h2><strong>Experience 🔬</strong></h2>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">
+                <tbody>
+                <tr>
+                    <td style="padding:20px;width:100px;vertical-align:middle">
+                        <!-- Logo Image -->
+                        <img src="src/images/sysu.png" alt="SYSU Logo" style="width: 100%; height: auto;">
+                    </td>
+
+                    <td style="padding:20px;width:auto;vertical-align:middle">
+                        <p><strong style="font-size: larger;">HCP Lab, Sun Yat-sen University</strong>
+                            <br>
+                            <em>Research Assistant</em>
+                            <br>
+                            <br>
+                            Advised by Prof. Keze Wang. Focusing on VLM, Agent, and VLA models.
+                            <br>
+                        </p>
+                        <p>
+                            Guangzhou, China. 2025/7 - Present
+                        </p>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">
+                <tbody>
+                <tr>
+                    <td style="padding:20px;width:100px;vertical-align:middle">
+                        <!-- Logo Image -->
+                        <img src="src/images/pclab.png" alt="PCL Logo" style="width: 100%; height: auto;">
+                    </td>
+
+                    <td style="padding:20px;width:auto;vertical-align:middle">
+                        <p><strong style="font-size: larger;">Peng Cheng Laboratory</strong>
+                            <br>
+                            <em>Research Assistant</em>
+                            <br>
+                            <br>
+                            Research on 3D Reconstruction.
+                            <br>
+                        </p>
+                        <p>
+                            Shenzhen, China. 2025/6 - 2025/7
+                        </p>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">
+                <tbody>
+                <tr>
+                    <td style="padding:20px;width:100px;vertical-align:middle">
+                        <!-- Logo Image -->
+                        <img src="src/images/myh.png" alt="Mingyue Logo" style="width: 100%; height: auto;">
+                    </td>
+
+                    <td style="padding:20px;width:auto;vertical-align:middle">
+                        <p><strong style="font-size: larger;">Mingyue Lake International Intelligent Industry Innovation Base</strong>
+                            <br>
+                            <em>Intern</em>
+                            <br>
+                            <br>
+                            Research on Speech Emotion Recognition. Mentored by Anfei Fan.
+                            <br>
+                        </p>
+                        <p>
+                            Chongqing, China. 2025/3 - 2025/8
+                        </p>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">
+                <tbody>
+                <tr>
+                    <td style="padding:20px;width:100px;vertical-align:middle">
+                        <img src="src/images/cqjtu_logo.webp" alt="CQJTU Logo" style="width: 100%; height: auto;">
+                    </td>
+
+                    <td style="padding:20px;width:auto;vertical-align:middle">
+                        <p><strong style="font-size: larger;">Chongqing Jiaotong University</strong>
+                            <br>
+                            <em>Undergraduate Student</em>
+                            <br>
+                            <em>Rank: 2/65 | GPA: 4.12/5.00</em>
+                            <br>
+                            <br>
+                            Focusing on Image Segmentation and Object Detection.
+                            <br>
+                        </p>
+                        <p>
+                            Chongqing, China. 2022/7 - Present
+                        </p>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <hr>
+            <section id="Research"></section>
+            <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">
+                <tbody>
+                <tr>
+                    <td style="padding:20px;width:100%;vertical-align:middle">
+                        <h2><strong>Research 💡</strong></h2>
+                        <br>
+                        <h2 style="font-size:large;"><strong>Interests:</strong></h2>
+                        <br>
+                        <div class="interest">
+                            · <em><strong>Agent</strong></em> 🤖
+                        </div>
+                        <br>
+                        <div class="interest">
+                            · <em><strong>Vision-Language-Action (VLA) Model</strong></em> 🦾
+                        </div>
+                        <br>
+                        <div class="interest">
+                            · <em><strong>Vision-Language Model (VLM)</strong></em> 👁️‍🗨️
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <section id="paper"></section>
+
+            <div class="paper-container">
+                <div class="image">
+                    <div class="slideshow-container" data-paper="rss">
+                        <!-- Images will be injected here by JS -->
+                        <div style="width:200px; height:150px; background:#eee; display:flex; align-items:center; justify-content:center;">Loading Images...</div>
+                    </div>
+                </div>
+                <div class="text">
+                    <span class="papertitle">Stable Language Guidance for Vision-Language-Action Models</span><br>
+                    <p>
+                        Z Zhan, Y Chen, J Zhou, <u><strong>Q Lv</strong></u>, H Liu, K Wang, L Lin, G Wang
+                    </p>
+                    <p style="text-align: justify; font-size: 0.95em;">
+                        <strong>Abstract:</strong> Vision-Language-Action (VLA) models have demonstrated impressive capabilities in generalized robotic control; however, they remain notoriously brittle to linguistic perturbations. We identify a critical “modality collapse” phenomenon where strong visual priors overwhelm sparse linguistic signals, causing agents to overfit to specific instruction phrasings while ignoring the underlying semantic intent. To address this, we propose Residual Semantic Steering (RSS), a probabilistic framework that disentangles physical affordance from semantic execution. RSS introduces two theoretical innovations: (1) Monte Carlo Syntactic Integration, which approximates the true semantic posterior via dense, LLM-driven distributional expansion, and (2) Residual Affordance Steering, a dual-stream decoding mechanism that explicitly isolates the causal influence of language by subtracting the visual affordance prior. Theoretical analysis suggests that RSS effectively maximizes the mutual information between action and intent while suppressing visual distractors. Empirical results across diverse manipulation benchmarks demonstrate that RSS achieves state-of-the-art robustness, maintaining performance even under adversarial linguistic perturbations.
+                    </p>
+                    <strong>Keywords: VLA, Vision-Language-Action.</strong><br><br>
+                    <p>
+                        <strong class="buttom"><a href="https://arxiv.org/abs/2601.04052">[Paper]</a></strong>
+                    </p>
+                    <div class="pub grey">
+                        <strong>Under Review</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-container">
+                <div class="image">
+                    <div class="slideshow-container" data-paper="mm_cot">
+                        <!-- Images will be injected here by JS -->
+                        <div style="width:200px; height:150px; background:#eee; display:flex; align-items:center; justify-content:center;">Loading Images...</div>
+                    </div>
+                </div>
+                <div class="text">
+                    <span class="papertitle">Mm-cot: a benchmark for probing visual chain-of-thought reasoning in multimodal models</span><br>
+                    <p>
+                        J Zhang, K Cai, X Guo, S Liu, <u><strong>Q Lv</strong></u>, R Chen, J Yang, Y Fan, X Sun, ...
+                    </p>
+                    <p style="text-align: justify; font-size: 0.95em;">
+                        <strong>Abstract:</strong> The ability to perform Chain-of-Thought (CoT) reasoning marks a major milestone for multimodal models (MMs), enabling them to solve complex visual reasoning problems. Yet a critical question remains: is such reasoning genuinely grounded in visual evidence and logically coherent? Existing benchmarks emphasize generation but neglect verification, i.e., the capacity to assess whether a reasoning chain is both visually consistent and logically valid. To fill this gap, we introduce MM-CoT, a diagnostic benchmark specifically designed to probe the visual grounding and logical coherence of CoT reasoning in MMs. Instead of generating free-form explanations, models must select the sole event chain that satisfies two orthogonal constraints: (i) visual consistency, ensuring all steps are anchored in observable evidence, and (ii) logical coherence, ensuring causal and commonsense validity. Adversarial distractors are engineered to violate one of these constraints, exposing distinct reasoning failures. We evaluate leading vision-language models on MM-CoT and find that even the most advanced systems struggle, revealing a sharp discrepancy between generative fluency and true reasoning fidelity. MM-CoT shows low correlation with existing benchmarks, confirming that it measures a unique combination of visual grounding and logical reasoning. This benchmark provides a foundation for developing future models that reason not just plausibly, but faithfully and coherently within the visual world.
+                    </p>
+                    <strong>Keywords: Multimodal, Chain-of-Thought.</strong><br><br>
+                    <p>
+                        <strong class="buttom"><a href="https://arxiv.org/abs/2512.08228">[Paper]</a></strong>
+                    </p>
+                    <div class="pub grey">
+                        <strong>Under Review</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-container">
+                <div class="image">
+                    <div class="slideshow-container" data-paper="htc_vlm">
+                        <!-- Images will be injected here by JS -->
+                        <div style="width:200px; height:150px; background:#eee; display:flex; align-items:center; justify-content:center;">Loading Images...</div>
+                    </div>
+                </div>
+                <div class="text">
+                    <span class="papertitle">Hybridtoken-vlm: Hybrid token compression for vision-language models</span><br>
+                    <p>
+                        J Zhang, X Guo, K Cai, <u><strong>Q Lv</strong></u>, Y Fan, W Chai, J Wang, K Wang
+                    </p>
+                    <p style="text-align: justify; font-size: 0.95em;">
+                        <strong>Abstract:</strong> Vision-language models (VLMs) have transformed multimodal reasoning, but feeding hundreds of visual patch tokens into LLMs incurs quadratic computational costs, straining memory and context windows. Traditional approaches face a trade-off: continuous compression dilutes high-level semantics such as object identities, while discrete quantization loses fine-grained details such as textures. We introduce HTC-VLM, a hybrid framework that disentangles semantics and appearance through dual channels, i.e., a continuous pathway for fine-grained details via ViT patches and a discrete pathway for symbolic anchors using MGVQ quantization projected to four tokens. These are fused into a 580-token hybrid sequence and compressed into a single voco token via a disentanglement attention mask and bottleneck, ensuring efficient and grounded representations. HTC-VLM achieves an average performance retention of 87.2 percent across seven benchmarks (GQA, VQAv2, MMBench, MME, POPE, SEED-Bench, ScienceQA-Image), outperforming the leading continuous baseline at 81.0 percent with a 580-to-1 compression ratio. Attention analyses show that the compressed token prioritizes the discrete anchor, validating its semantic guidance. Our work demonstrates that a minimalist hybrid design can resolve the efficiency-fidelity dilemma and advance scalable VLMs.
+                    </p>
+                    <strong>Keywords: VLM, Token Compression.</strong><br><br>
+                    <p>
+                        <strong class="buttom"><a href="https://arxiv.org/abs/2512.08240">[Paper]</a></strong>
+                    </p>
+                    <div class="pub grey">
+                        <strong>Under Review</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-container">
+                <div class="image">
+                    <div class="slideshow-container" data-paper="hiva">
+                        <!-- Images will be injected here by JS -->
+                        <div style="width:200px; height:150px; background:#eee; display:flex; align-items:center; justify-content:center;">Loading Images...</div>
+                    </div>
+                </div>
+                <div class="text">
+                    <span class="papertitle">Hiva: Self-organized hierarchical variable agent via goal-driven semantic-topological evolution</span><br>
+                    <p>
+                        J Tang*, J Zhang*, <u><strong>Q Lv*</strong></u>, S Liu, J Yang, C Tang, K Wang
+                    </p>
+                    <p>
+                        AAAI Conference on Artificial Intelligence (AAAI), 2026 (Poster)
+                    </p>
+                    <p style="text-align: justify; font-size: 0.95em;">
+                        <strong>Abstract:</strong> Autonomous agents play a crucial role in advancing Artificial General Intelligence, enabling problem decomposition and tool orchestration through Large Language Models (LLMs). However, existing paradigms face a critical trade-off. On one hand, reusable fixed workflows require manual reconfiguration upon environmental changes; on the other hand, flexible reactive loops fail to distill reasoning progress into transferable structures. We introduce Hierarchical Variable Agent (HiVA), a novel framework modeling agentic workflows as self-organized graphs with the Semantic-Topological Evolution (STEV) algorithm, which optimizes hybrid semantic-topological spaces using textual gradients as discrete-domain surrogates for backpropagation. The iterative process comprises Multi-Armed Bandit-infused forward routing, diagnostic gradient generation from environmental feedback, and coordinated updates that co-evolve individual semantics and topology for collective optimization in unknown environments. Experiments on dialogue, coding, Long-context Q&A, mathematical, and agentic benchmarks demonstrate improvements of 5-10% in task accuracy and enhanced resource efficiency over existing baselines, establishing HiVA’s effectiveness in autonomous task execution.
+                    </p>
+                    <strong>Keywords: Agent, Hierarchical Variable Agent.</strong><br><br>
+                    <p>
+                        <strong class="buttom"><a href="https://arxiv.org/abs/2509.00189">[Paper]</a></strong>
+                        <strong class="buttom"><a href="https://github.com/tangjzh/HiVA">[Code]</a></strong>
+                    </p>
+                    <div class="pub green">
+                        <strong>AAAI 2026</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-container">
+                <div class="image">
+                    <div class="slideshow-container" data-paper="coagent">
+                        <!-- Images will be injected here by JS -->
+                        <div style="width:200px; height:150px; background:#eee; display:flex; align-items:center; justify-content:center;">Loading Images...</div>
+                    </div>
+                </div>
+                <div class="text">
+                    <span class="papertitle">CoAgent: Collaborative Planning and Consistency Agent for Coherent Video Generation</span><br>
+                    <p>
+                        Q Zeng, K Cai, R Chen, <u><strong>Q Lv</strong></u>, K Wang
+                    </p>
+                    <p style="text-align: justify; font-size: 0.95em;">
+                        <strong>Abstract:</strong> Maintaining narrative coherence and visual consistency remains a central challenge in open-domain video generation. Existing text-to-video models often treat each shot independently, resulting in identity drift, scene inconsistency, and unstable temporal structure. We propose CoAgent, a collaborative and closed-loop framework for coherent video generation that formulates the process as a plan-synthesize-verify pipeline. Given a user prompt, style reference, and pacing constraints, a Storyboard Planner decomposes the input into structured shot-level plans with explicit entities, spatial relations, and temporal cues. A Global Context Manager maintains entity-level memory to preserve appearance and identity consistency across shots. Each shot is then generated by a Synthesis Module under the guidance of a Visual Consistency Controller, while a Verifier Agent evaluates intermediate results using vision-language reasoning and triggers selective regeneration when inconsistencies are detected. Finally, a pacing-aware editor refines temporal rhythm and transitions to match the desired narrative flow. Extensive experiments demonstrate that CoAgent significantly improves coherence, visual consistency, and narrative quality in long-form video generation.
+                    </p>
+                    <strong>Keywords: Agent, Video Generation.</strong><br><br>
+                    <p>
+                        <strong class="buttom"><a href="https://arxiv.org/abs/2512.22536">[Paper]</a></strong>
+                    </p>
+                    <div class="pub blue">
+                        <strong>arXiv</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-container">
+                <div class="image">
+                    <div class="slideshow-container" data-paper="e0">
+                        <!-- Images will be injected here by JS -->
+                        <div style="width:200px; height:150px; background:#eee; display:flex; align-items:center; justify-content:center;">Loading Images...</div>
+                    </div>
+                </div>
+                <div class="text">
+                    <span class="papertitle">Enhancing Generalization and Fine-Grained Control in VLA Models via Continuized Discrete Diffusion</span><br>
+                    <p>
+                        Z Zhan, J Zhou, L Zhang, <u><strong>Q Lv</strong></u>, H Liu, J Zhang, W Li, Z Chen, T Chen, ...
+                    </p>
+                    <p style="text-align: justify; font-size: 0.95em;">
+                        <strong>Abstract:</strong> Vision-Language-Action (VLA) models offer a unified framework for robotic manipulation by integrating visual perception, language understanding, and control generation. Yet existing VLA models still struggle to generalize across diverse tasks, scenes, and camera viewpoints, and often produce coarse or unstable actions. We introduce E0, a continuized discrete diffusion framework that formulates action generation as iterative denoising over quantized action tokens. Compared with continuous diffusion policies, E0 offers two key advantages: (1) discrete action tokens align naturally with the symbolic structure of pretrained VLM/VLA backbones, enabling stronger semantic conditioning; and 2. discrete diffusion matches the true quantized nature of real-world robot control-whose hardware constraints (e.g., encoder resolution, control frequency, actuation latency) inherently discretize continuous signals-and therefore benefits from a Bayes-optimal denoiser that models the correct discrete action distribution, leading to stronger generalization. Compared with discrete autoregressive and mask-based discrete diffusion models, E0 supports a significantly larger and finer-grained action vocabulary and avoids the distributional mismatch introduced by masking-based corruptions-yielding more accurate fine-grained action control. We further introduce a spherical viewpoint perturbation augmentation method to improve robustness to camera shifts without additional data. Experiments on LIBERO, VLABench, and ManiSkill show that E0 achieves state-of-the-art performance across 14 diverse environments, outperforming strong baselines by 10.7% on average. Real-world evaluation on a Franka arm confirms that E0 delivers precise, robust, and transferable manipulation, establishing discrete diffusion as a promising direction for generalizable VLA policy learning.
+                    </p>
+                    <strong>Keywords: VLA, Diffusion.</strong><br><br>
+                    <p>
+                        <strong class="buttom"><a href="https://arxiv.org/abs/2511.21542">[Paper]</a></strong>
+                    </p>
+                    <div class="pub grey">
+                        <strong>Under Review</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-container">
+                <div class="image">
+                    <div class="slideshow-container" data-paper="veme">
+                        <!-- Images will be injected here by JS -->
+                        <div style="width:200px; height:150px; background:#eee; display:flex; align-items:center; justify-content:center;">Loading Images...</div>
+                    </div>
+                </div>
+                <div class="text">
+                    <span class="papertitle">Beyond Pixels: Introducing Geometric-Semantic World Priors for Video-based Embodied Models via Spatio-temporal Alignment</span><br>
+                    <p>
+                        J Tang, S Liu, W Xiu, <u><strong>Q Lv</strong></u>, X Li
+                    </p>
+                    <p style="text-align: justify; font-size: 0.95em;">
+                        <strong>Abstract:</strong> Achieving human-like reasoning in deep learning models for complex tasks in unknown environments remains a critical challenge in embodied intelligence. While advanced vision-language models (VLMs) excel in static scene understanding, their limitations in spatio-temporal reasoning and adaptation to dynamic, open-set tasks like task-oriented navigation and embodied question answering (EQA) persist due to inadequate modeling of fine-grained spatio-temporal cues and physical world comprehension. To address this, we propose VEME, a novel cross-modal alignment method that enhances generalization in unseen scenes by learning an ego-centric, experience-centered world model. Our framework integrates three key components: (1) a cross-modal alignment framework bridging objects, spatial representations, and visual semantics with spatio-temporal cues to enhance VLM in-context learning; (2) a dynamic, implicit cognitive map activated by world embedding to enable task-relevant geometric-semantic memory recall; and (3) an instruction-based navigation and reasoning framework leveraging embodied priors for long-term planning and efficient exploration. By embedding geometry-aware spatio-temporal episodic experiences, our method significantly improves reasoning and planning in dynamic environments. Experimental results on VSI-Bench and VLN-CE demonstrate 1%-3% accuracy and exploration efficiency improvement compared to traditional approaches.
+                    </p>
+                    <strong>Keywords: Embodied AI, World Priors.</strong><br><br>
+                    <p>
+                        <strong class="buttom"><a href="https://arxiv.org/abs/2509.00210">[Paper]</a></strong>
+                    </p>
+                    <div class="pub blue">
+                        <strong>arXiv</strong>
+                    </div>
+                </div>
+            </div>
+
+            <hr>
+            <section id="Projects"></section>
+            <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">
+                <tbody>
+                <tr>
+                    <td style="padding:20px;width:100%;vertical-align:middle">
+                        <h2><strong>Projects 📂</strong></h2>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div class="paper-container">
+                <div class="image">
+                    <div class="slideshow-container" data-project="innovation">
+                        <!-- Images will be injected here by JS -->
+                        <div style="width:200px; height:150px; background:#eee; display:flex; align-items:center; justify-content:center;">Loading Images...</div>
+                    </div>
+                </div>
+                <div class="text">
+                    <div class="papertitle">Drowning Detection</div>
+                    <p>
+                        Built a vision-based drowning detection system that fuses object detection and pose estimation to identify abnormal postures and trigger real-time alerts in water scenes.
+                    </p>
+                    <strong>Keywords: Object Detection, Pose Estimation</strong><br><br>
+                    <div class="pub">
+                        National Undergraduate Innovation Program
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-container">
+                <div class="image">
+                    <div class="slideshow-container" data-project="smart_car">
+                        <!-- Images will be injected here by JS -->
+                        <div style="width:200px; height:150px; background:#eee; display:flex; align-items:center; justify-content:center;">Loading Images...</div>
+                    </div>
+                </div>
+                <div class="text">
+                    <div class="papertitle">Smart Car Competition</div>
+                    <p>
+                        Designed an autonomous smart car with robust lane-following and control logic, enabling stable trajectory tracking and autonomous driving on competition tracks.
+                    </p>
+                    <strong>Keywords: Lane-Following Algorithms, Autonomous Driving</strong><br><br>
+                    <div class="pub">
+                        National Competition
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-container">
+                <div class="image">
+                    <div class="slideshow-container" data-project="tobacco">
+                        <!-- Images will be injected here by JS -->
+                        <div style="width:200px; height:150px; background:#eee; display:flex; align-items:center; justify-content:center;">Loading Images...</div>
+                    </div>
+                </div>
+                <div class="text">
+                    <div class="papertitle">Tobacco Soil Conservation</div>
+                    <p>
+                        Conducted metagenomic analysis of soil microbial communities and built bioinformatics workflows to evaluate soil health and support conservation strategies.
+                    </p>
+                    <strong>Keywords: Metagenomics, Bioinformatics</strong><br><br>
+                    <div class="pub">
+                        Tobacco Bureau Collaboration
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-container">
+                <div class="image">
+                    <div class="slideshow-container" data-project="robotic_arm">
+                        <!-- Images will be injected here by JS -->
+                        <div style="width:200px; height:150px; background:#eee; display:flex; align-items:center; justify-content:center;">Loading Images...</div>
+                    </div>
+                </div>
+                <div class="text">
+                    <div class="papertitle">Robotic Arm Industry Collaboration</div>
+                    <p>
+                        Developed embodied-intelligence-driven robotic arm solutions with perception and task execution, targeting reliable commercial deployment.
+                    </p>
+                    <strong>Keywords: Embodied Intelligence, Commercial Deployment</strong><br><br>
+                    <div class="pub">
+                        Tuoyuan Company Collaboration
+                    </div>
+                </div>
+            </div>
+
+            <hr>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,1796 @@
+<!DOCTYPE HTML>
+
+<html lang="en" xmlns="">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Kirin Lv 吕沁函</title>
+    <meta name="author" content="YudiRuan">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="/src/images/cortex_logo.png" type="image/png">
+    <link rel="stylesheet" href="/css/desktop.css" media="screen and (min-width: 601px)">
+    <link rel="stylesheet" href="/css/mobile.css" media="screen and (max-width: 600px)">
+    <style>
+        .alert_bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: rgb(42, 192, 37);
+            text-align: center;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10; /* 确保在照片墙上方 */
+        }
+        /* Media query to hide the right column when screen width is less than 600px */
+        @media (max-width: 600px) {
+            .right-column {
+                display: none;
+            }
+
+            .bottom-column {
+                display: block;
+            }
+        }
+
+        .inline-icon {
+            vertical-align: middle; /* 使图标与文本对齐 */
+            width: 24px; /* 设置图标的宽度 */
+            height: 24px; /* 设置图标的高度 */
+            margin-bottom: 4px;
+        }
+
+        @media (min-width: 600px) {
+            .right-column {
+                display: block;
+            }
+
+            .bottom-column {
+                display: none;
+            }
+        }
+
+        /* 照片墙样式 */
+        .photo-wall-container {
+            width: 100%;
+            overflow: hidden;
+            margin: 20px 0;
+            position: relative;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 10%, rgba(255,255,255,0.1) 90%, transparent 100%);
+            border-radius: 0;
+            padding: 20px 0;
+            height: 185px; /* 增加高度以适应更大的图片 */
+            max-width: 100%; /* 确保不超出容器宽度 */
+            box-sizing: border-box; /* 确保padding不会增加总宽度 */
+            z-index: 1; /* 确保在alert_bar下方 */
+        }
+
+        .photo-wall-container::before,
+        .photo-wall-container::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 50px;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .photo-wall-container::before {
+            left: 0;
+            background: linear-gradient(90deg, rgba(255,255,255,1) 0%, transparent 100%);
+        }
+
+        .photo-wall-container::after {
+            right: 0;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,1) 100%);
+        }
+
+        .photo-wall {
+            display: flex;
+            animation: scroll 50s linear infinite;
+            width: max-content;
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            align-items: center;
+            will-change: transform;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            transform: translate3d(0, 0, 0);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .photo-item {
+            flex-shrink: 0;
+            margin: 0 5px;
+            border-radius: 0;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            max-width: 200px; /* 限制最大宽度 */
+            will-change: transform;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+
+        .photo-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .photo-item img {
+            width: 220px;
+            height: 165px;
+            object-fit: cover;
+            display: block;
+        }
+
+        @keyframes scroll {
+            0% {
+                transform: translate3d(0, 0, 0);
+            }
+            100% {
+                transform: translate3d(-50%, 0, 0);
+            }
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 600px) {
+            .photo-item img {
+                width: 160px;
+                height: 120px;
+            }
+            
+            .photo-wall {
+                animation-duration: 25s;
+            }
+
+            .photo-wall-container::before,
+            .photo-wall-container::after {
+                width: 30px;
+            }
+
+            .photo-wall-container {
+                padding: 15px 0;
+                height: 150px; /* 移动端增加高度 */
+            }
+        }
+
+        /* 超小屏幕适配 */
+        @media (max-width: 400px) {
+            .photo-item img {
+                width: 140px;
+                height: 105px;
+            }
+            
+            .photo-wall {
+                animation-duration: 20s;
+            }
+
+            .photo-wall-container {
+                height: 135px; /* 超小屏幕增加高度 */
+            }
+        }
+
+        /* 滚动形式描述容器样式 */
+        .description-container {
+            position: relative;
+            overflow-y: auto;
+            overflow-x: hidden;
+            max-height: var(--image-height, 200px);
+            padding-right: 10px;
+            margin-right: -10px;
+            /* 自定义滚动条样式 - Firefox */
+            scrollbar-width: thin;
+            scrollbar-color: #4192e8 #f1f1f1;
+        }
+
+        /* 自定义滚动条样式 - Chrome/Safari/Edge */
+        .description-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .description-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+            margin: 2px 0;
+        }
+
+        .description-container::-webkit-scrollbar-thumb {
+            background: #4192e8;
+            border-radius: 4px;
+            transition: background 0.2s ease;
+        }
+
+        .description-container::-webkit-scrollbar-thumb:hover {
+            background: #2d6bc7;
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 600px) {
+            .description-container {
+                padding-right: 8px;
+                margin-right: -8px;
+                scrollbar-width: thin;
+                scrollbar-color: #4192e8 #f1f1f1;
+            }
+
+            .description-container::-webkit-scrollbar {
+                width: 5px;
+            }
+        }
+    </style>
+    <script>
+        let ext_changeList = [];
+
+        function changeImageExtensions(origin, target) {
+            // 获取所有的 <img> 元素
+            images = ext_changeList
+            console.log(images)
+
+            // 遍历所有的 <img> 元素
+            images.forEach(img => {
+                // 获取图像的 src 属性
+                let src = img.src;
+
+                // 检查 src 是否以 .gif 结尾
+                if (src.endsWith(origin)) {
+                    // 替换 .gif 为 .png
+                    img.src = src.replace(origin, target);
+                    img.loading = 'lazy';
+                }
+            });
+        }
+
+        function getQueryParams() {
+            // 获取 URL 查询参数部分
+            ext_changeList = document.querySelectorAll('img');
+            ext_changeList = Array.from(ext_changeList).filter(img => img.src.endsWith('.png'));
+            ext_changeList = Array.from(ext_changeList).filter(img => img.className==='dynamic-static');
+            let queryString = window.location.search;
+
+            // 创建 URLSearchParams 对象
+            let urlParams = new URLSearchParams(queryString);
+
+            // 获取查询参数
+            let version = urlParams.get('version');
+            if (version === 'static') {
+                document.getElementById('low-bandwidth-attention').style.display = 'block';
+                changeImageExtensions('.gif', '.png')
+            } else {
+                alert_bar0.style.display = 'none';
+                document.getElementById('low-bandwidth-attention').style.display = 'none';
+                changeImageExtensions('.png', '.gif')
+            }
+        }
+
+        // 确保 DOM 完全加载后调用 getQueryParams
+        document.addEventListener("DOMContentLoaded", getQueryParams);
+
+        // 滚动形式描述容器功能
+        document.addEventListener("DOMContentLoaded", function() {
+            // 找到Research和Projects section
+            const researchSection = document.getElementById('Research');
+            const projectsSection = document.getElementById('Projects');
+            const paperSection = document.getElementById('paper');
+            
+            // 获取所有paper-container
+            const allContainers = document.querySelectorAll('.paper-container');
+            const targetContainers = [];
+            
+            // 找到Research section后的所有paper-container（直到Projects section）
+            if (researchSection || paperSection) {
+                const startSection = paperSection || researchSection;
+                let element = startSection.nextElementSibling;
+                while (element) {
+                    if (element === projectsSection) break;
+                    if (element.classList && element.classList.contains('paper-container')) {
+                        targetContainers.push(element);
+                    }
+                    element = element.nextElementSibling;
+                }
+            }
+            
+            // 找到Projects section后的所有paper-container
+            if (projectsSection) {
+                let element = projectsSection.nextElementSibling;
+                while (element) {
+                    if (element.classList && element.classList.contains('paper-container')) {
+                        targetContainers.push(element);
+                    }
+                    element = element.nextElementSibling;
+                }
+            }
+            
+            targetContainers.forEach((container) => {
+                const imageDiv = container.querySelector('.image');
+                const textDiv = container.querySelector('.text');
+                const image = imageDiv ? imageDiv.querySelector('img') : null;
+                
+                if (!image || !textDiv) return;
+                
+                // 找到描述段落（通常是包含长文本的p标签，排除作者和链接部分）
+                const paragraphs = textDiv.querySelectorAll('p');
+                let descriptionP = null;
+                
+                // 找到最长的段落作为描述段落（排除包含链接按钮的段落）
+                paragraphs.forEach(p => {
+                    const text = p.textContent.trim();
+                    const hasLinkButton = p.querySelector('strong.buttom') || p.querySelector('a[href]');
+                    if (text.length > 100 && !hasLinkButton) {
+                        if (!descriptionP || text.length > descriptionP.textContent.trim().length) {
+                            descriptionP = p;
+                        }
+                    }
+                });
+                
+                if (!descriptionP) return;
+                
+                // 创建滚动容器
+                const wrapper = document.createElement('div');
+                wrapper.className = 'description-container';
+                descriptionP.parentNode.insertBefore(wrapper, descriptionP);
+                wrapper.appendChild(descriptionP);
+                
+                // 设置高度为图片高度
+                function setHeight() {
+                    if (image.complete && image.offsetHeight > 0) {
+                        const imageHeight = image.offsetHeight;
+                        wrapper.style.setProperty('--image-height', imageHeight + 'px');
+                        wrapper.style.maxHeight = imageHeight + 'px';
+                    } else {
+                        image.onload = function() {
+                            const imageHeight = image.offsetHeight;
+                            wrapper.style.setProperty('--image-height', imageHeight + 'px');
+                            wrapper.style.maxHeight = imageHeight + 'px';
+                        };
+                        // 如果图片已经加载但高度为0，等待一下再设置
+                        setTimeout(function() {
+                            if (image.offsetHeight > 0) {
+                                const imageHeight = image.offsetHeight;
+                                wrapper.style.setProperty('--image-height', imageHeight + 'px');
+                                wrapper.style.maxHeight = imageHeight + 'px';
+                            }
+                        }, 100);
+                    }
+                }
+                
+                setHeight();
+                
+                // 窗口大小改变时重新计算
+                let resizeTimer;
+                window.addEventListener('resize', function() {
+                    clearTimeout(resizeTimer);
+                    resizeTimer = setTimeout(setHeight, 250);
+                });
+            });
+        });
+
+        // 照片墙交互控制
+        document.addEventListener("DOMContentLoaded", function() {
+            const photoWall = document.querySelector('.photo-wall');
+            const photoWallContainer = document.querySelector('.photo-wall-container');
+            
+            if (photoWall && photoWallContainer) {
+                // 复制照片项以实现无缝循环
+                const originalItems = photoWall.querySelectorAll('.photo-item');
+                if (originalItems.length > 0) {
+                    // 克隆所有照片项
+                    originalItems.forEach(item => {
+                        const clone = item.cloneNode(true);
+                        photoWall.appendChild(clone);
+                    });
+                }
+                
+                // 鼠标悬停时暂停动画
+                photoWallContainer.addEventListener('mouseenter', function() {
+                    photoWall.style.animationPlayState = 'paused';
+                });
+                
+                // 鼠标离开时恢复动画
+                photoWallContainer.addEventListener('mouseleave', function() {
+                    photoWall.style.animationPlayState = 'running';
+                });
+                
+                // 点击图片时放大显示（包括克隆的图片）
+                photoWallContainer.addEventListener('click', function(e) {
+                    const photoItem = e.target.closest('.photo-item');
+                    if (photoItem) {
+                        const img = photoItem.querySelector('img');
+                        if (img) {
+                            // 创建模态框显示大图
+                            const modal = document.createElement('div');
+                            modal.style.cssText = `
+                                position: fixed;
+                                top: 0;
+                                left: 0;
+                                width: 100%;
+                                height: 100%;
+                                background: rgba(0, 0, 0, 0.8);
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                                z-index: 1000;
+                                cursor: pointer;
+                            `;
+                            
+                            const modalImg = document.createElement('img');
+                            modalImg.src = img.src;
+                            modalImg.style.cssText = `
+                                max-width: 90%;
+                                max-height: 90%;
+                                object-fit: contain;
+                                border-radius: 8px;
+                            `;
+                            
+                            modal.appendChild(modalImg);
+                            document.body.appendChild(modal);
+                            
+                            // 点击模态框关闭
+                            modal.addEventListener('click', function() {
+                                document.body.removeChild(modal);
+                            });
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</head>
+
+<body>
+<div id="alert_bar0" class="alert_bar">
+    <em> It looks like you're accessing a static
+        version of the site due to a low-bandwidth network connection.
+        For an enhanced experience with more features, please visit
+        <a href="main.html?version=dynamic"><u style="color:cornflowerblue;">Link</u></a>.</em>
+    <!-- <button onclick="acceptCookies()">接受</button> -->
+</div>
+<div class="mobile-component">
+    <ul>
+        <li><a href="#Top"><strong>Kirin Lv</strong></a></li>&nbsp;·&nbsp;
+        <li><a href="#ResearchExperience">🔬</a></li>&nbsp;·&nbsp;
+        <!--         <li><a href="#Education">📚</a></li>&nbsp;·&nbsp;-->
+        <li><a href="#Research">💡</a></li>&nbsp;·&nbsp;
+        <li><a href="#Projects">📂</a></li>&nbsp;·&nbsp;
+        <li><a href="#Awards">🏆</a></li>
+    </ul>
+</div>
+
+<div class="desktop-component">
+    <ul>
+        <li><a href="#Top" style="font-size: x-large;"><strong>Kirin Lv</strong></a></li>&nbsp;·&nbsp;
+        <li><a href="#ResearchExperience">Experience</a></li>&nbsp;·&nbsp;
+        <li><a href="#Research">Research</a></li>&nbsp;·&nbsp;
+        <li><a href="#Projects">Projects</a></li>&nbsp;·&nbsp;
+        <li><a href="#Awards">Awards</a></li>
+    </ul>
+</div>
+
+<script>
+    // Get the height of the mobile and desktop navigation bars
+    var navbarHeightMobile = document.querySelector('.mobile-component ul').offsetHeight;
+    var navbarHeightDesktop = document.querySelector('.desktop-component ul').offsetHeight;
+
+    // Add click event listeners to navigation links
+    document.querySelectorAll('.mobile-component ul li a, .desktop-component ul li a, .a').forEach(function (anchor) {
+        anchor.addEventListener('click', function (event) {
+            event.preventDefault(); // Prevent the default navigation behavior
+
+            var targetId = this.getAttribute('href'); // Get the target section's ID from the link's href
+            var targetElement = document.querySelector(targetId); // Find the target element using its ID
+            var targetOffsetTop = targetElement.offsetTop; // Get the target's top offset relative to the document
+
+            // Calculate scroll position considering the navigation bar height to avoid overlap
+            var navbarHeight = (window.innerWidth < 768) ? navbarHeightMobile : navbarHeightDesktop;
+            window.scrollTo({
+                top: targetOffsetTop - navbarHeight,
+                behavior: 'smooth' // Smooth scroll to the target position
+            });
+        });
+    });
+</script>
+
+<section id="Top"></section>
+<table style="max-width:900px;margin:auto;padding-top: 30px;">
+    <tbody>
+    <tr style="padding:0px">
+        <td style="padding:0px">
+            <div id="low-bandwidth-attention">
+                <br>
+                <em style="color: rgb(160, 160, 160);font-size: smaller;"> It looks like you're accessing a static
+                    version of the site due to a low-bandwidth network connection.
+                    For an enhanced experience with more features, please visit
+                    <a href="main.html?version=dynamic"><u>Link</u></a>.</em>
+                <hr>
+            </div>
+            <div class="bio">
+                <div class="face-name">
+                    <img src="src/images/profile.jpg" alt="profile photo" class="profile-img">
+                    <div class="name-info">
+                        <table style="width: 100%;">
+                            <tr>
+                                <td style="vertical-align: auto; width: auto; padding-right: 20px;">
+                                    <p>
+                                        阮宇迪 <br>
+                                        Yudi Ruan<br>
+                                    </p>
+                                </td>
+                                <td class="right-column" style="vertical-align: auto; width: auto; padding-left: 20px;">
+                                    <p>
+                                        <em style="color: rgb(160, 160, 160);font-size: 12px; padding-bottom: 0px">
+                                            2023 National Undergraduate Scholarship &#127894<br>
+                                            2024 National Inspirational Scholarship &#127894<br>
+                                            2023 Model Student<br>
+                                            2023,2024 Advanced Individual in Technology<br>
+                                            2023,2024 Outstanding Student
+                                        </em>
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <br>
+                <div class="bottom-column">
+                    <hr>
+                    <p>
+                        <em style="color: rgb(160, 160, 160);font-size: 12px; padding-bottom: 0px">
+                            2023 National Undergraduate Scholarship &#127894 <br>
+                            2024 National Inspirational Scholarship &#127894 <br>
+                            2023 Model Student<br>
+                            2023 Advanced Individual in Technology<br>
+                            2023 Outstanding Student
+                        </em>
+                    </p>
+                </div>
+                <hr>
+                <p>
+                    Hello, I am Ruan Yudi. I am currently an undergraduate student majoring in Artificial Intelligence
+                    at the School of Information Science and Engineering, Chongqing Jiaotong University. My current job
+                    focuses on Visual Language Model. At the same time, I am conducting market research and am
+                    passionate about building an artificial intelligence company (CORTEX) that empowers traditional
+                    industries.
+                </p>
+                <p>
+                    <strong style="color: rgb(255, 67, 183);">I’m currently seeking a PhD or Master position for Fall
+                        2026 admission.🌟</strong>
+                </p>
+                <div class="links">
+                    <a href="src/ryd_cv.pdf">&#128279 CV</a> &nbsp;·&nbsp;
+                    <!-- <a href="data/resume-zh.pdf">CV-zh</a> &nbsp;·&nbsp; -->
+                    <a href="https://blog.csdn.net/m0_46197553?spm=1000.2115.3001.5343">
+                        <img src="https://th.bing.com/th?id=ODLS.75fbaa62-ad18-4e8b-9ca8-67706ec82c93&w=32&h=32&qlt=90&pcl=fffffa&o=6&pid=1.2"
+                             alt="GitHub Logo" class="inline-icon" style="width: 18px; height: 18px; ">
+                        CSDN</a> &nbsp;·&nbsp;
+                    <a href="https://github.com/ruanyudi">
+                        <img src="/src/images/github-logo.png"
+                             alt="GitHub Logo" class="inline-icon">
+                        Github
+                    </a> &nbsp;·&nbsp;
+                    <a href="https://scholar.google.com/citations?user=_NxfkuYAAAAJ&hl=zh-CN">
+                        <img src="/src/images/google-scholar-ico.png"
+                             alt="Google scholar Logo" class="inline-icon" style="width: 18px; height: 18px; ">
+                        Google Scholar</a> &nbsp;·&nbsp;
+                    <a href="mailto:kirinlv03@gmail.com">&#128231 Email</a>
+                </div>
+            </div>
+
+            <hr>
+            
+            <!-- 自动滚动照片墙 -->
+            <section id="PhotoWall"></section>
+            <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">
+                <tbody>
+                <tr>
+                    <td style="padding:0px;width:100%;vertical-align:middle">
+                        <div class="photo-wall-container">
+                            <div class="photo-wall">
+                                <div class="photo-item">
+                                    <img src="src/images/highlights/微信图片_20250823170021.jpg">
+                                </div>
+                                <div class="photo-item">
+                                    <img src="src\images\highlights\微信图片_20250823170855.jpg">
+                                </div>
+                                <div class="photo-item">
+                                    <img src="src\images\highlights\微信图片_20250823170901.jpg">
+                                </div>
+                                <div class="photo-item">
+                                    <img src="src\images\highlights\微信图片_20250823170907.jpg">
+                                </div>
+                                <div class="photo-item">
+                                    <img src="src\images\highlights\微信图片_20250823170912.jpg">
+                                </div>
+                                <div class="photo-item">
+                                    <img src="src\images\highlights\微信图片_20250823170917.jpg">
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <hr>
+            <section id="Awards"></section>
+            <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">
+                <tbody>
+                <tr>
+                    <td style="padding:20px;width:100%;vertical-align:middle">
+                        <h2><strong>Awards 🏆</strong></h2>
+                        <img src="src\images\highlights\1755944564768.png" width=100%>
+                        <h3><strong>1) International</strong></strong></h3>
+                        <p>
+                            <strong>Honorable Mention</strong> &#128208
+                            <em style="color: rgb(160, 160, 160);font-size: smaller;">
+                                Mathematical Contest in Modeling / Interdisciplinary Contest in Modeling (MCM/ICM)
+                            </em>
+
+                        </p>
+
+                        <h3><strong>2) National</strong></strong></h3>
+                        <p>
+                            <strong>1st. Prize &#129351</strong>
+                            <em style="color: rgb(160, 160, 160);font-size: smaller;">
+                                RAICOM Robotics Developer Competition (RAICOM) CAIR Engineering National Finals (2024)
+                            </em>
+                            <br>
+                            <strong>1nd. Prize &#129351</strong>
+                            <em style="color: rgb(160, 160, 160);font-size: smaller;">
+                                National College Business Elite Challenge National Finals (2024)
+                            </em>
+                            <br>
+                            <strong>2nd. Prize &#129352</strong>
+                            <em style="color: rgb(160, 160, 160);font-size: smaller;">
+                                The 26th China Robotics and Artificial Intelligence Competition National Finals (2024)
+                            </em>
+                            <br>
+                            <strong>3rd. Prize &#129353</strong>
+                            <em style="color: rgb(160, 160, 160);font-size: smaller;">
+                                The 8th 'Hangda Data Cup' National College Intelligent Transportation Innovation and
+                                Entrepreneurship Competition National Finals (2024)
+                            </em>
+
+                        </p>
+
+                        <h3><strong>3) Provincial</strong></strong></h3>
+                        <p>
+                            <strong>1st. Prize &#129351</strong>
+                            <em style="color: rgb(160, 160, 160);font-size: smaller;">
+                                National College Student Mathematical Modeling Competition (2023)
+                            </em>
+                            <br>
+                            <strong>2nd. Prize &#129352</strong>
+                            <em style="color: rgb(160, 160, 160);font-size: smaller;">
+                                The 18th National College Student Intelligent Vehicle Competition, iFlytek Track (2023)
+                            </em>
+                            <br>
+                            <strong>2nd. Prize &#129352</strong>
+                            <em style="color: rgb(160, 160, 160);font-size: smaller;">
+                                The 18th National College Student Intelligent Vehicle Competition, Baidu Track (2023)
+                            </em>
+                            <br>
+                            <strong>2nd. Prize &#129352</strong>
+                            <em style="color: rgb(160, 160, 160);font-size: smaller;">
+                                The 16th China College Students Computer Design Competition (2023)
+                            </em>
+                            <br>
+                            <strong>2nd. Prize &#129352</strong>
+                            <em style="color: rgb(160, 160, 160);font-size: smaller;">
+                                The 11th "Datang Cup" National College Student New Generation Information and Communication Technology Competition
+                            </em>
+                            <br>
+                            <strong>2nd. Prize &#129352</strong>
+                            <em style="color: rgb(160, 160, 160);font-size: smaller;">
+                                China International University Student Innovation Competition (2024) Chongqing Division
+                            </em>
+                            <br>
+                            <strong>3rd. Prize &#129353</strong>
+                            <em style="color: rgb(160, 160, 160);font-size: smaller;">
+                                China Software Cup University Student Software Design Competition (2023)
+                            </em>
+
+                        </p>
+
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <!--          <hr>-->
+            <!--          <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">-->
+            <!--            <tbody>-->
+            <!--              <tr>-->
+            <!--                <td style="padding:20px;width:100%;vertical-align:middle">-->
+            <!--                  <h2><strong>News📰</strong></h2>-->
+            <!--                </td>-->
+            <!--              </tr>-->
+            <!--            </tbody>-->
+            <!--          </table>-->
+            <!--  -->
+            <!--          <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">-->
+            <!--            <tbody>-->
+            <!--              <tr>-->
+            <!--                <td style="padding:20px;width:85%;vertical-align:middle">-->
+            <!--                  <p style="color: rgb(59, 59, 59);font-size: larger;">-->
+            <!--                    <strong>[2024/6/26]</strong> - PhD offer from CUHK!-->
+            <!--                  </p>-->
+            <!--                  <p style="color: rgb(59, 59, 59);font-size: larger;">-->
+            <!--                    <strong>[2024/6/14]</strong> - Mask4Align now released!-->
+            <!--                  </p>-->
+            <!--                  <p style="color: rgb(59, 59, 59);font-size: larger;">-->
+            <!--                    <strong>[2024/2/27]</strong> - My first paper accepted by CVPR 2024! See you in Seattle! -->
+            <!--                  </p>-->
+            <!--                </td>-->
+            <!--              </tr>-->
+            <!--            </tbody>-->
+            <!--          </table>-->
+
+            <hr>
+            <section id="ResearchExperience"></section>
+            <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">
+                <tbody>
+                <tr>
+                    <td style="padding:20px;width:100%;vertical-align:middle">
+                        <h2><strong>Experience 🔬</strong></h2>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">
+                <tbody>
+                <tr>
+                    <td style="padding:20px;width:100px;vertical-align:middle">
+                        <img src="src/images/cqjtu_logo.webp" alt="Your Image Alt Text"
+                             style="width: 100%; height: auto;">
+                    </td>
+
+                    <td style="padding:20px;width:auto;vertical-align:middle">
+                        <p><strong style="font-size: larger;">Chongqing Jiaotong University</strong>
+                            <br>
+                            <em>Undergraduate Student</em>
+                            <br>
+                            <em>Rank 1/65 GPA:4.15/5.00</em>
+                            <br>
+
+                            <br>
+                            Few Shot Object Detection, Image Restoration
+                            <br>
+                            advised by Prof. Weikai Li
+                        </p>
+
+                        <p>
+                            China. 2022/7 - present
+                        </p>
+
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">
+                <tbody>
+                <tr>
+                    <td style="padding:20px;width:100px;vertical-align:middle">
+                        <img src="src/images/uvclinic.png" alt="Your Image Alt Text" style="width: 100%; height: auto;">
+                    </td>
+
+                    <td style="padding:20px;width:auto;vertical-align:middle">
+                        <p><strong style="font-size: larger;">Shanghai Panoramic Medical Imaging Technology Co.,
+                            Ltd</strong>
+                            <br>
+                            <em>Research Intern</em>
+                            <br>
+                            <br>
+                            Application of diagnosis of brain disorders
+                            <br>
+                        </p>
+                        <p>
+                            Shanghai, China. 2023/7 - 2024/9
+                        </p>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">
+                <tbody>
+                <tr>
+                    <td style="padding:20px;width:100px;vertical-align:middle">
+                        <img src="src/images/cortex_logo.png" alt="Your Image Alt Text"
+                             style="width: 100%; height: auto;">
+                    </td>
+
+                    <td style="padding:20px;width:auto;vertical-align:middle">
+                        <p><strong style="font-size: larger;">CORTEX Technology Co., Ltd</strong>
+                            <br>
+                            <em>Co-Founder</em>
+                            <br>
+                            <br>
+                            Embodied AI, RAG AI Agent
+                            <br>
+                        </p>
+                        <p>
+                            Taizhou, China. 2024/8 - present
+                        </p>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">
+                <tbody>
+                <tr>
+                    <td style="padding:20px;width:100px;vertical-align:middle">
+                        <img src="src/images/hedra-logo.png" alt="Your Image Alt Text" style="width: 100%; height: auto;">
+                    </td>
+
+                    <td style="padding:20px;width:auto;vertical-align:middle">
+                        <p><strong style="font-size: larger;">Hedra. Inc</strong>
+                            <br>
+                            <em>Deep Learning Intern</em>
+                            <br>
+                            <br>
+                            Parallelization, Quantization, Realtime-Avatar
+                            <br>
+                        </p>
+                        <p>
+                            California, USA. 2024/10 - 2025/8
+                        </p>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">
+                <tbody>
+                <tr>
+                    <td style="padding:20px;width:100px;vertical-align:middle">
+<!--                        <img src="" alt="Your Image Alt Text" style="width: 100%; height: auto;">-->
+                    </td>
+
+                    <td style="padding:20px;width:auto;vertical-align:middle">
+                        <p><strong style="font-size: larger;">Zhejiang Starlord Robotic Technology Co.,
+                            Ltd</strong>
+                            <br>
+                            <em>Chairman's Secretary</em>
+                            <br>
+                            <br>
+
+                            <br>
+                        </p>
+                        <p>
+                            Zhejiang, China. 2024/10 - present
+                        </p>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+
+            <hr>
+            <section id="Research"></section>
+            <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">
+                <tbody>
+                <tr>
+                    <td style="padding:20px;width:100%;vertical-align:middle">
+                        <h2><strong>Research 💡</strong></h2>
+
+                        <br>
+                        <h2 style="font-size:large;"><strong>Interests:</strong></h2>
+                        <br>
+                        <div class="interest">
+                            · <em><strong>Multi-Modality Representation Learning</strong></em> &#127775
+                        </div>
+                        <br>
+                        <div class="interest">
+                            · <em><strong>Domain Adaptation</strong></em> &#128257
+                        </div>
+                        <br>
+                        <div class="interest">
+                            · <em><strong>Few Shot Object Detection</strong></em> &#127919
+                        </div>
+
+
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <section id="paper"></section>
+
+            <div class="paper-container">
+                <div class="image">
+                    <img src='src/images/ECAFormer.png' alt="ECAFormer" class="dynamic-static">
+                </div>
+                <div class="text">
+                    <span class="papertitle">ECAFormer: Low-light Image Enhancement using Cross Attention</span><br>
+
+                    <p>
+                        <u><strong>Kirin Lv</strong></u>,
+                        Hao Ma,
+                        Weikai Li,
+                        Xiao Wang
+                    </p>
+
+                    <p>
+                        Low-light image enhancement (LLIE) is critical in computer vision. Existing LLIE methods often
+                        fail to discover the underlying relationships between different sub-components, causing the loss
+                        of complementary information between multiple modules and network layers, ultimately resulting
+                        in the loss of image details. To beat this shortage, we design a hierarchical mutual Enhancement
+                        via a Cross Attention transformer (ECAFormer), which introduces an architecture that enables
+                        concurrent propagation and interaction of multiple features. The model preserves detailed
+                        information by introducing a Dual Multi-head self-attention (DMSA), which leverages visual and
+                        semantic features across different scales, allowing them to guide and complement each other.
+                        Besides, a Cross-Scale DMSA block is introduced to capture the residual connection, integrating
+                        cross-layer information to further enhance image detail. Experimental results show that
+                        ECAFormer reaches competitive performance across multiple benchmarks, yielding nearly a 3%
+                        improvement in PSNR over the suboptimal method, demonstrating the effectiveness of information
+                        interaction in LLIE.
+                    </p>
+
+                    <p>
+                        <strong class="buttom"><a href="https://arxiv.org/abs/2406.13281v2">[Paper]</a></strong>
+                        <strong class="buttom"><a href="https://doi.org/10.1016/j.engappai.2025.111501">[DOI]</a></strong>
+                        <!-- <strong class="buttom"><a href="https://github.com/HaoquanZhang/mask4align">[Code]</a></strong> -->
+                    </p>
+                    <strong>Keywords: Image Restoration, Cross Attention, Transformer, Feature fusion.</strong><br><br>
+                    <div class="pub">
+                        <strong>Engineering Applications of Artificial Intelligence</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-container">
+                <div class="image">
+                    <img src='src/images/MFCP.png' alt="MFCP" class="dynamic-static">
+                </div>
+                <div class="text">
+                    <span class="papertitle">MFCP: Identification of Major Depressive Disorder Using Multiple Functional Connection Pattern</span><br>
+
+                    <p>
+                        <strong><u>Kirin Lyv</u>*</strong>,
+                        Ling Zhang*,
+                        Liling Peng*,
+                        Weikai Li,
+                        Xin Gao
+                        <br>
+                        <em style="color: rgb(160, 160, 160);font-size: smaller;">* Co-first authorship</em>
+                    </p>
+
+                    <p>
+                        Major depressive disorder (MDD) poses a significant challenge to global mental health,
+                        necessitating the development of sophisticated diagnostic tools for its early and accurate
+                        detection. Currently, rs-fMRI has attracted considerable attention in evaluating MDD through
+                        functional brain networks (FBNs). The advent of graph convolutional networks (GCNs) has
+                        revolutionized the analysis of FBNs by capturing the complex interregional connection patterns
+                        that underlie neurological disorders, including MDD. However, existing GCN-based methodologies
+                        have predominantly concentrated on the examination of FBNs through a single topological
+                        structure, thereby neglecting the rich, multifaceted information encoded within various
+                        connection patterns. This limitation hinders the full realization of GCNs' potential in MDD
+                        diagnosis. To address this, we propose the Multiple Functional Connection Pattern Graph
+                        Convolutional Network (MFCP), an innovative framework that integrates three distinct connection
+                        patterns—Sparse Representation (SR), Partial Correlation (PC), and Granger Causality Mapping
+                        (GCM)—to harness the synergistic insights they provide. Our preliminary investigation integrates
+                        multiple graph convolutional modules to amalgamate diverse connection information, thereby
+                        enriching the MDD diagnostic features extracted from FBNs. To evaluate the proposed MFCP, we
+                        conduct experiment on the REST-MDD dataset with 533 subjects. The experimental results indicate
+                        that our MFCP attained an accuracy rate of 87.74% and an AUC score of 0.9326, confirming the
+                        effectiveness of our MFCP.
+                    </p>
+
+                    <p>
+                        <!--                <strong class="buttom">[Paper]</strong>-->
+                        <!--                <strong class="buttom">[Code]</strong>-->
+                    </p>
+                    <strong>Keywords: Resting-state fMRI; Connection patterns; Functional brain network; Graph
+                        convolutional network; Major depressive disorders.</strong><br><br>
+                    <div class="insub">
+                        <strong>Under Review</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-container">
+                <div class="image">
+                    <img src='src/images/ras.png' alt="1uavnugv"  class="dynamic-static">
+                </div>
+                <div class="text">
+                    <span class="papertitle">Accelerating Hybrid Rice Breeding with In-Field Based on Grid Mapping and Agri-UGV</span><br>
+
+                    <p>
+                        Huaiqu Feng,
+                        <u><strong>Qinhan lyv</strong></u>,
+                        Te Xi,
+                        Yulei Pan,
+                        Dongdong Du,
+                        Yongwei Wang
+                        <br>
+                    </p>
+
+                    <p>
+                        This research presents a comprehensive study on the contour mapping of rice
+                        canopies for Agricultural Unmanned Ground Vehicles (Agri-UGVs) operating in
+                        complex, unknown hybrid rice fields. Accurate Mapping is crucial for these vehicles to
+                        plan their operational areas efficiently while steering clear of protected zones. The
+                        motion equations that underpin the control of Agri-UGVs tasked with intelligent impurity
+                        removal heavily rely on the precise measurements of hybrid rice height and canopy
+                        contour. Therefore, the accurate estimation of these parameters is vital for the effective
+                        perception and operation of Agricultural robots. The Agri-UGV, equipped with
+                        advanced RGB-D depth sensors, facilitates the collection of distance measurements
+                        and the perception of the surrounding hybrid rice canopy's geometrical structure. This
+                        introduces an innovative mapping estimation and algorithm tailored for the hybrid rice
+                        canopy contour, utilizing a combination of kinematic and inertial measurements to
+                        achieve proprioceptive localization of the Agri-UGV. The algorithm incorporates an
+                        inference framework for grid mapping, which leverages real-time RGB-D data to
+                        iteratively refine the probabilistic distributions of the canopy's morphological properties.
+                        This is achieved by correlating the hybrid rice height intercept with in-field data while
+                        accounting for drift and uncertainty in the state estimation process. The result is a set
+                        of probabilistic contour estimates formatted as grid-based elevation maps. The
+                        proposed algorithm has been designed to operate in real-time within the ROS-Jetson
+                        system, and its performance is rigorously evaluated using metrics such as relative and
+                        absolute pose error. The algorithm has been successfully deployed on a High-
+                        clearance Agri-UGV platform, demonstrating its ability to accurately estimate rice
+                        canopy height's morphological properties in various paddy field environments. It also
+                        details the experiments conducted to explore the Agri-UGV's mapping capabilities
+                        within the cluttered hybrid rice environment. This research significantly contributes to
+                        the field of autonomous agricultural operations by enhancing the precision and
+                        reliability of canopy contour mapping, which is essential for the effective navigation and
+                        task execution of Agri-UGVs in intricate agricultural settings.
+                    </p>
+
+                    <p>
+                        <!--                <strong class="buttom">[Paper]</strong>-->
+                        <!--                <strong class="buttom">[Code]</strong>-->
+                    </p>
+                    <strong>Keywords: Crops, Phenotypic, Robot vision systems, Stereo image processing, Canopy mapping
+                        learning.</strong><br><br>
+                    <div class="insub">
+                        <strong>Under Review</strong>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="paper-container">
+                <div class="image">
+                    <img src='src/images/1uavnugv.png' alt="1uavnugv"  class="dynamic-static">
+                </div>
+                <div class="text">
+                    <span class="papertitle">nUGV-1UAV robot swarms: low-altitude remote sensing-based decentralized planning framework in-field environments</span><br>
+
+                    <p>
+                        Huaiqu Feng,
+                        <u><strong>Kirin Lv</strong></u>,
+                        Dongfang Li,
+                        Te Xi,
+                        Yulei Pan,
+                        Yongwei Wang,
+                        Jun Wang
+                        <br>
+                    </p>
+
+                    <p>
+                        Hybrid-rice seed production demands rapid removal of heterologous plants. We present a decentralized nUGV-
+                        1UAV framework that couples low-altitude remote sensing with on-board swarm planning to accomplish this task
+                        in large paddy fields. A single UAV performs one-off high-resolution mapping; thereafter, multiple UGVs rely
+                        solely on the downloaded map and peer-to-peer communication to execute impurity removal. A topology-guided
+                        hybrid A* planner generates homotopy-consistent routes, while a decoupled space–time optimizer refines trajectories
+                        for curvature and collision constraints. Field experiments covering 12.7 acres with 73 impurity targets
+                        show that a fleet of six UGVs finishes the task in 1.21 h, attaining an individual UGV efficiency of 6 989 m2/h
+                        (≈10.5 acres/h). The optimal UGV-to-impurity ratio is 0.47: 5.75: 1 (UGV: impurities: acre). Simulations up to
+                        200 acres demonstrate linear scalability with 5 % deviation from the analytical model. Even when the UAV is
+                        disabled, UGVs maintain 92 % task completion using offline maps, confirming robust decentralization.
+                    </p>
+
+                    <p>
+                        <strong class="buttom"><a href="https://doi.org/10.1016/j.isprsjprs.2025.08.003">[DOI]</a></strong>
+                        <!--                <strong class="buttom">[Paper]</strong>-->
+                        <!--                <strong class="buttom">[Code]</strong>-->
+                    </p>
+                    <strong>Keywords: Smart agriculture, Autonomous navigation, Swarm robotics, Low-altitude remote sensing, Motion planning
+                        learning.</strong><br><br>
+                    <div class="pub">
+                        <strong>ISPRS Journal of Photogrammetry and Remote Sensing</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-container">
+                <div class="image">
+                    <img src='src/images/nuav1ugv.png' alt="1uavnugv"  class="dynamic-static">
+                </div>
+                <div class="text">
+                    <span class="papertitle">1UGV-nUAV: In-Field Environments called the Energy-Constrained and Charging Station Low-altitude Remote Sensing-based Motion Planning</span><br>
+
+                    <p>
+                        Huaiqu Feng,
+                        <u><strong>Kirin Lv</strong></u>,
+                        Dongfang Li,
+                        Te Xi,
+                        Yulei Pan,
+                        Yongwei Wang,
+                        <br>
+                    </p>
+
+                    <p>
+                    In contemporary smart agriculture, multi-machine collaboration among agricultural robotic is increasingly
+                    essential for navigating vast hybrid paddy fields. This paper presents the Energy-Constrained and Charging
+                    Station Low-altitude Remote Sensing-based Motion Planning (ECS-LRSMP), a novel approach for cooperative
+                    UGV-UAV systems in agricultural field exploration. The 1UGV-nUAV algorithm effectively addresses the
+                    challenges of energy constraints and path optimization through a five-step process: computing Voronoi
+                    Tessellations for charging station placement, solving the Hitting Set problem to select an optimal charging
+                    station set, applying a gravitational optimization algorithm to minimize UGV travel distance, and solving the
+                    Traveling Salesman Problem (TSP) for both UGV and UAV. This approach combines traditional combinatorial
+                    techniques with modern evolutionary algorithms to optimize travel distance. Simulation results demonstrate the
+                    algorithm's effectiveness in generating a coordinated plan that optimizes the performance of the hybrid UGV-
+                    UAV system in exploration scenarios. The findings highlight the significance of key parameters such as the
+                    maximum UAV flight distance 𝑅 and the number of clusters 𝛿 in designing efficient ECS-LRSMP instances.
+                    For example, increasing 𝑅 by 300% (from 3 to 9) raises UAV travel distance by 35% and UGV travel distance
+                    by 15%, establishing a positive correlation between R and total mission distance. Reducing 𝛿 from 15 to 5
+                    cuts UGV travel distance by 28% and total mission distance by 32%, confirming a positive correlation between
+                    𝛿 and total mission distance. Future research will explore incorporating environmental constraints, online UAV
+                    path planning, and refining the algorithm for broader applicability.    
+                    </p>
+
+                    <p>
+                        <!--                <strong class="buttom">[Paper]</strong>-->
+                        <!--                <strong class="buttom">[Code]</strong>-->
+                    </p>
+                    <strong>Keywords: Smart agriculture, Heterogeneous Robots, Multi-machine collaboration, Low-altitude remote sensing, Motion planning
+                        learning.</strong><br><br>
+                    <div class="insub">
+                        <strong>Under Review</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-container">
+                <div class="image">
+                    <img src='src/images/skpnet.png' alt="1uavnugv"  class="dynamic-static">
+                </div>
+                <div class="text">
+                    <span class="papertitle">SKPNet: snake KAN perceive bridge cracks through semantic segmentation</span><br>
+
+                    <p>
+                        <u><strong>Kirin Lv</strong></u>,
+                        Di Wang,
+                        Yijing Yuan,
+                        Shixin Jiang,
+                        Xianyi Yang
+                        <br>
+                    </p>
+
+                    <p>
+                        As the demands for ensuring bridge safety continue to rise, crack detection technology has become more crucial than
+                        ever. In this context, deep learning methods have been widely applied in the field of intelligent crack detection for
+                        bridges. However, existing methods are often constrained by complex backgrounds and computational limitations,
+                        struggling with issues such as weak crack continuity and insufficient detail representation. Inspired by biological
+                        mechanisms, a dynamic snake convolution (DSC) with tubular offsets is incorporated to tackle these challenges ef-
+                        fectively. Additionally, a channel-wise self-attention (CWSA) mechanism is introduced to efficiently fuse multi-scale
+                        features in U-Net, significantly enhancing the ability of the model to capture fine details. In the classification head,
+                        the traditional linear layer is replaced with a Kolmogorov-Arnold network (KAN) structure, which strengthens the
+                        robustness and generalization capacity of the model. Experimental results demonstrate that the proposed model im-
+                        proves detection accuracy, achieving a mean intersection over union (mIoU) of 0.877, while maintaining almost the
+                        same number of parameters, showcasing exceptional performance and practical applicability. Our project is released
+                        at https://github.com/ruanyudi/KanSeg-Bi.
+                    </p>
+
+                    <p>
+                        <strong class="buttom"><a href="https://doi.org/10.20517/ir.2025.07">[DOI]</a></strong>
+                        <!--                <strong class="buttom">[Paper]</strong>-->
+                        <!--                <strong class="buttom">[Code]</strong>-->
+                    </p>
+                    <strong>Keywords: Crack detection, Dynamic snake convolution, KAN, Attention, U-Net, Biomimetric
+                        learning.</strong><br><br>
+                    <div class="pub">
+                        <strong>Intelligence & Robotics</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-container">
+                <div class="image">
+                    <img src='src/images/Manuscript.png' alt="Manuscript"  class="dynamic-static">
+                </div>
+                <div class="text">
+                    <span class="papertitle">Contrastive Clustering-driven Topological Organization Unveils Characterization of Hybrid-rice with In-Field for Variety Purification</span><br>
+
+                    <p>
+                        Huaiqu Feng,
+                        Te Xi,
+                        <u><strong>Kirin Lv</strong></u>,
+                        Dunhong Yang,
+                        Yulei Pan,
+                        Rongkai Shi,
+                        Bo Chen,
+                        Yongwei Wang,
+                        Jun Wang
+                        <br>
+                    </p>
+
+                    <p>
+                        Hybrid-rice seed production technology is a significant contributor to the high yield. The way
+                        to improve seed production's yield and quality is purification. With the functional requirements
+                        of the intelligent Undesired-rice removal process, the environmental elements of field operation
+                        and the morphological parameters of Desired-rice and Undesired-rice are collected and measured.
+                        The hybrid rice phenotypic of the multiple growth stages was collected to explore topological
+                        organization unveiling the hybrid rice in-field for variety purification. The phenological
+                        growth stages include the elongation, booting, heading, and filling stages. Expert knowledge on
+                        identifying abnormal mature varieties within hybrid rice was incorporated to ensure accuracy in
+                        variety purification. Then, the data was collected using the self-supervised learning
+                        visualization method for deep cluster analysis. The proposed method, the t-SimCLR algorithm,
+                        uses Contrastive Learning and neighbor embeddings to visualize high- dimensional data. The
+                        parametric mapping is trained from the high-dimensional pixel space into two dimensions and
+                        achieves classification accuracy by the t-SimCLR algorithm. The semantic relationships of
+                        Undesired-rice and Desired-rice data are faithfully captured. Finally, the preliminary results
+                        from the expert's prior knowledge are compared with the deep cluster analysis results to explore
+                        the topological organization of the hybrid rice in-field. Last, the integration of expert prior
+                        knowledge in the detection of panicles was showcased. The study culminates in demonstrating the
+                        integration of expert knowledge in the detection of panicles, which is crucial for accurately
+                        identifying and detecting abnormal mature varieties. This study contributes to the advancement
+                        of hybrid rice purification techniques and sets the stage for developing more sophisticated
+                        intelligent systems for agricultural applications.
+                    </p>
+
+                    <p>
+                        <strong class="buttom"><a href="https://doi.org/10.1016/j.eswa.2024.125859">[DOI]</a></strong>
+                        <!--                <strong class="buttom">[Paper]</strong>-->
+                        <!--                <strong class="buttom">[Code]</strong>-->
+                    </p>
+                    <strong>Keywords: Hybrid-rice, Phenotypic, Visualization, Data integration, Contrastive
+                        learning.</strong><br><br>
+                    <div class="pub">
+                        <strong>Expert Systems with Applications</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-container">
+                <div class="image">
+                    <img src='src/images/tide.png' alt="tide"  class="dynamic-static">
+                </div>
+                <div class="text">
+                    <span class="papertitle">TIDE: Test-Time Few Shot Object Detection</span><br>
+
+                    <p>
+                        Weikai Li,
+                        Hongfeng Wei,
+                        Yanlai Wu,
+                        Jie Yang,
+                        <u><strong>Kirin Lv</strong></u>,
+                        Yuan Li,
+                        Ying Tang
+                        <br>
+                    </p>
+
+                    <p>
+                        Few-shot object detection (FSOD) aims to extract semantic knowledge from limited object
+                        instances of novel categories within a target domain. Recent advances in FSOD focus on
+                        fine-tuning the base model based on a few objects via meta-learning or data augmentation.
+                        Despite their success, the majority of them are grounded with parametric readjustment to
+                        generalize on novel objects, which face considerable challenges in Industry 5.0, such as 1) a
+                        certain amount of fine-tuning time is required and 2) the parameters of the constructed model
+                        being unavailable due to the privilege protection, making the fine-tuning fail. Such constraints
+                        naturally limit its application in scenarios with real-time configuration requirements or within
+                        black-box settings. To tackle the challenges mentioned above, we formalize a novel FSOD task,
+                        referred to as test-time few-shot detection (TIDE), where the model is un-tuned in the
+                        configuration procedure. To that end, we introduce an asymmetric architecture for learning a
+                        support-instance-guided dynamic category classifier. Further, a cross-attention module and a
+                        multiscale resizer are provided to enhance the model performance. Experimental results on
+                        multiple FSOD platforms reveal that the proposed TIDE significantly outperforms existing
+                        contemporary methods.
+                    </p>
+
+                    <p>
+                        <strong class="buttom"><a href="https://doi.org/10.1109/TSMC.2024.3371699">[DOI]</a></strong>
+                        <!--                <strong class="buttom">[Paper]</strong>-->
+                        <!--                <strong class="buttom">[Code]</strong>-->
+                    </p>
+                    <strong>Keywords: Cross Attention, Few-shot Detection, Test Time.</strong><br><br>
+                    <div class="pub">
+                        <strong>IEEE Transactions on Systems, Man, and Cybernetics Systems</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-container">
+                <div class="image">
+                    <img src='src/images/toward.png' alt="toward"  class="dynamic-static">
+                </div>
+                <div class="text">
+                    <span class="papertitle">Towards an accurate autism spectrum disorder diagnosis: multiple connectome views from fMRI data</span><br>
+
+                    <p>
+                        Jie Yang*,
+                        Xiaowen Xu*,
+                        Mingxiang Sun*,
+                        <u><strong>Kirin Lv</strong></u>,
+                        Chenhao Sun,
+                        Weikai Li,
+                        Xin Gao
+                        <br>
+                        <em style="color: rgb(160, 160, 160);font-size: smaller;">* Co-first authorship</em>
+                    </p>
+
+                    <p>
+                        Functional connectome has revealed remarkable potential in the diagnosis of neurological
+                        disorders, e.g. autism spectrum disorder. However, existing studies have primarily focused on a
+                        single connectivity pattern, such as full correlation, partial correlation, or causality. Such
+                        an approach fails in discovering the potential complementary topology information of FCNs at
+                        different connection patterns, resulting in lower diagnostic performance. Consequently, toward
+                        an accurate autism spectrum disorder diagnosis, a straight-forward ambition is to combine the
+                        multiple connectivity patterns for the diagnosis of neurological disorders. To this end, we
+                        conduct functional magnetic resonance imaging data to construct multiple brain networks with
+                        different connectivity patterns and employ kernel combination techniques to fuse information
+                        from different brain connectivity patterns for autism diagnosis. To verify the effectiveness of
+                        our approach, we assess the performance of the proposed method on the Autism Brain Imaging Data
+                        Exchange dataset for diagnosing autism spectrum disorder. The experimental findings demonstrate
+                        that our method achieves precise autism spectrum disorder diagnosis with exceptional accuracy
+                        (91.30%), sensitivity (91.48%), and specificity (91.11%).
+                    </p>
+
+                    <p>
+                        <strong class="buttom"><a href="https://doi.org/10.1093/cercor/bhad477">[DOI]</a></strong>
+                        <!--                <strong class="buttom"><a href="https://arxiv.org/abs/2406.13281v2">[Paper]</a></strong>-->
+                        <!-- <strong class="buttom"><a href="https://github.com/HaoquanZhang/mask4align">[Code]</a></strong> -->
+                    </p>
+                    <strong>Keywords: autism spectrum disorder; multi kernel learning; partial correlation; Pearson's
+                        correlation; Granger causality.</strong><br><br>
+                    <div class="pub">
+                        <strong>Cerebral Cortex</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-container">
+                <div class="image">
+                    <img src='src/images/MPGCN.png' alt="MPGCN"  class="dynamic-static">
+                </div>
+                <div class="text">
+                    <span class="papertitle">Multipattern graph convolutional network-based autism spectrum disorder identification</span><br>
+
+                    <p>
+                        Wenhao Zhou*,
+                        Mingxiang Sun*,
+                        Xiaowen Xu*,
+                        <u><strong>Yudi Ruan</strong></u>,
+                        Chenhao Sun,
+                        Weikai Li,
+                        Xin Gao
+                        <br>
+                        <em style="color: rgb(160, 160, 160);font-size: smaller;">* Co-first authorship</em>
+                    </p>
+
+                    <p>
+                        The early diagnosis of autism spectrum disorder (ASD) has been extensively facilitated through
+                        the utilization of resting-state fMRI (rs-fMRI). With rs-fMRI, the functional brain network
+                        (FBN) has gained much attention in diagnosing ASD. As a promising strategy, graph convolutional
+                        networks (GCN) provide an attractive approach to simultaneously extract FBN features and
+                        facilitate ASD identification, thus replacing the manual feature extraction from FBN. Previous
+                        GCN studies primarily emphasized the exploration of topological simultaneously connection
+                        weights of the estimated FBNs while only focusing on the single connection pattern. However,
+                        this approach fails to exploit the potential complementary information offered by different
+                        connection patterns of FBNs, thereby inherently limiting the performance. To enhance the
+                        diagnostic performance, we propose a multipattern graph convolution network (MPGCN) that
+                        integrates multiple connection patterns to improve the accuracy of ASD diagnosis. As an initial
+                        endeavor, we endeavored to integrate information from multiple connection patterns by
+                        incorporating multiple graph convolution modules. The effectiveness of the MPGCN approach is
+                        evaluated by analyzing rs-fMRI scans from a cohort of 92 subjects sourced from the publicly
+                        accessible Autism Brain Imaging Data Exchange database. Notably, the experiment demonstrates
+                        that our model achieves an accuracy of 91.1% and an area under ROC curve score of 0.9742.
+                    </p>
+
+                    <p>
+                        <!--                <strong class="buttom">[Paper]</strong>-->
+                        <!--                <strong class="buttom">[Code]</strong>-->
+                    </p>
+                    <strong>Keywords: resting-state fMRI; autism spectrum disorder; multipattern; brain connectivity
+                        networks; graph convolution network.</strong><br><br>
+                    <div class="pub">
+                        <strong>Cerebral Cortex</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-container">
+                <div class="image">
+                    <img src='src/images/FewSegment.png' alt="FewSegment"  class="dynamic-static">
+                </div>
+                <div class="text">
+                    <span class="papertitle">Few-shot segmentation with duplex network and attention augmented module</span><br>
+
+                    <p>
+                        Sifu Zeng,
+                        Jie Yang,
+                        Wang Luo,
+                        <u><strong>Yudi Ruan</strong></u>
+                        <br>
+                    </p>
+
+                    <p>
+                        Establishing the relationship between a limited number of samples and segmented objects in
+                        diverse scenarios is the primary challenge in few-shot segmentation. However, many previous
+                        works overlooked the crucial support-query set interaction and the deeper information that needs
+                        to be explored. This oversight can lead to model failure when confronted with complex scenarios,
+                        such as ambiguous boundaries. To solve this problem, a duplex network that utilizes the
+                        suppression and focus concept is proposed to effectively suppress the background and focus on
+                        the foreground. Our network includes dynamic convolution to enhance the support-query
+                        interaction and a prototype match structure to fully extract information from support and query.
+                        The proposed model is called dynamic prototype mixture convolutional networks (DPMC). To
+                        minimize the impact of redundant information, we have incorporated a hybrid attentional module
+                        called double-layer attention augmented convolutional module (DAAConv) into DPMC. This module
+                        enables the network to concentrate more on foreground information. Our experiments on PASCAL-5i
+                        and COCO-20i datasets suggested that DPMC and DAAConv outperform traditional prototype-based
+                        methods by up to 5–8% on average.
+                    </p>
+
+                    <p>
+                        <strong class="buttom"><a href="https://doi.org/10.3389/fnbot.2023.1206189">[DOI]</a></strong>
+                        <!--                <strong class="buttom">[Paper]</strong>-->
+                        <!--                <strong class="buttom">[Code]</strong>-->
+                    </p>
+                    <strong>Keywords: few-shot segmentation, semantic segmentation, mixture models, duplex mode,
+                        attention module</strong><br><br>
+                    <div class="pub">
+                        <strong>Frontiers in Neurorobotics</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-container">
+                <div class="image">
+                    <img src='src/images/AlteredASD.png' alt="AlteredASD"  class="dynamic-static">
+                </div>
+                <div class="text">
+                    <span class="papertitle">Altered intra- and inter-network connectivity in autism spectrum disorder</span><br>
+
+                    <p>
+                        Rui Zhou*,
+                        Chenhao Sun*,
+                        Mingxiang Sun*,
+                        <u><strong>Yudi Ruan</strong></u>,
+                        Weikai Li,
+                        Xin Gao
+                        <br>
+                        <em style="color: rgb(160, 160, 160);font-size: smaller;">* Co-first authorship</em>
+                    </p>
+
+                    <p>
+                        A neurodevelopmental illness termed as the autism spectrum disorder (ASD) is described by social
+                        interaction impairments. Previous studies employing resting-state functional imaging (rs-fMRI)
+                        identified both hyperconnectivity and hypoconnectivity patterns in ASD people. However, specific
+                        patterns of connectivity within and between networks linked to ASD remain largely unexplored.
+                        Methods: We utilized a meticulously selected subset of high-quality data, comprising 45
+                        individuals diagnosed with ASD and 47 HCs, obtained from the ABIDE dataset. The pre-processed
+                        rs-fMRI time series signals were partitioned into ninety regions of interest. We focused on
+                        eight intrinsic connectivity networks and further performed intra- and inter-network analysis.
+                        Finally, support vector machine was used to discriminate ASD from HC. Results: Through different
+                        sparsities, ASD exhibited significantly decreased intra-network connectivity within default mode
+                        network and dorsal attention network, increased connectivity between limbic network and
+                        subcortical network, and decreased connectivity between default mode network and limbic network.
+                        Using the classifier trained on altered intra- and inter-network connectivity, multivariate
+                        pattern analyses classified the ASD from HC with 71.74% accuracy, 70.21% specificity and 75.56%
+                        sensitivity in 10% sparsity of functional connectivity. Conclusions: ASD showed characteristic
+                        reorganization of the brain networks and this provided new insight into the underlying process
+                        of the functional connectome dysfunction in ASD.
+                    </p>
+
+                    <p>
+                        <!--                <strong class="buttom">[Paper]</strong>-->
+                        <!--                <strong class="buttom">[Code]</strong>-->
+                    </p>
+                    <strong>Keywords: autism spectrum disorder, inter-network connectivity, intra-network connectivity,
+                        support vector machine, functional brain network</strong><br><br>
+                    <div class="pub">
+                        <strong>Aging</strong>
+                    </div>
+                </div>
+            </div>
+
+            <hr>
+            <section id="Projects"></section>
+            <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">
+                <tbody>
+                <tr>
+                    <td style="padding:20px;width:100%;vertical-align:middle">
+                        <h2><strong>Projects 📂</strong></h2>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div class="paper-container">
+                <div class="image">
+                    <img src='src/images/robotics.png' alt="robotics"  class="dynamic-static">
+                </div>
+                <div class="text">
+                    <span class="papertitle">RX7: hexapod spider robot</span><br>
+                    <!--              <strong><a href="NBMEC_2023/B030079.pdf">[Entry (Chinese)]</a></strong>-->
+                    <p>
+                        It integrates NVIDIA Jetson series development kits and Intel Realsense cameras, equipped with
+                        16 high-precision servos. The robot's body is designed and cut from carbon fiber plates.
+                        Currently, it is capable of autonomous mapping and navigation,
+                        as well as target tracking, making it suitable for exploring complex terrains and performing
+                        various tasks. The future work involves integrating LLMs to create an embodied AI.
+                    </p>
+                    <!--              <em>Entry</em>, 2023, National Biomedical Engineering Innovation Design Competition for College Students-->
+                    <!--              <p><strong>Second Prize. (6%)</strong></p>-->
+                    <strong>Keywords: SLAM, Mechanical Design </strong><br><br>
+                    <div class="pub">
+                        Under Development
+                    </div>
+                </div>
+            </div>
+
+            <div class="paper-container">
+                <div class="image">
+                    <img src='src/images/MedSegVisualizer.png' alt="MedSegVisualizer"  class="dynamic-static">
+                </div>
+                <div class="text">
+                    <span class="papertitle">Huanshi: 3D Medical Imaging Data Analysis Platform</span><br>
+                    <!--              <span class="papertitle">Design of Auxiliary Diagnosis Algorithm for Schizophrenia Based on Feature Fusion of EEG and ECG</span><br>-->
+                    <!--              <strong><a href="NBMEC_2023/B030079.pdf">[Entry (Chinese)]</a></strong>-->
+                    <p>
+                        This project is an AI-based 3D medical imaging data analysis system that utilizes
+                        state-of-the-art machine vision models. It intelligently analyzes multimodal medical imaging
+                        data, including CT and MRI scans, to automatically segment and visualize relevant areas, such as
+                        15 abdominal
+                        organs and tumors. The project employs a Client/Server (C/S) architecture, with
+                        visualization handled on the client side via ITK, and data augmentation and model inference
+                        managed on the server side. The server side utilizes the industry-leading
+                        Kubernetes (K8S) distributed architecture for cloud computing, deploying inference engines in
+                        containers to achieve automatic scaling and fault tolerance, resulting in high performance and
+                        high availability.
+                    </p>
+                    <strong>Keywords: K8S, Deep-learning, Medical Science </strong><br><br>
+                    <div class="pub">
+                        Chongqing Provincial Innovation Project
+                    </div>
+                    <!--              <p><strong>Second Prize. (6%)</strong></p>-->
+                </div>
+            </div>
+
+            <div class="paper-container">
+                <div class="image">
+                    <img src='src/images/autoware.png' alt="autoware"  class="dynamic-static">
+                </div>
+                <div class="text">
+                    <div class="papertitle">Train Multi-Source Fusion Perception System</div>
+                    <br>
+                    <p>
+                        It utilizes NVIDIA Jetson series development kits and Intel Realsense series
+                        cameras. It aims to measure the real-time velocity and location of urban trains through visual
+                        (monocular/stereo) and accelerometer data, constructing a visual inertial odometry system to
+                        replace traditional wheel encoders.
+                    </p>
+                    <strong>Keywords: SLAM, Visual Odometry</strong><br><br>
+                    <div class="pub">
+                        Chinese National Innovation Project
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="paper-container">
+                <div class="image">
+                    <img src='src/images/LLIEVisualizer.png' alt="LLIEVisualizer"  class="dynamic-static">
+                </div>
+                <div class="text">
+                    <div class="papertitle">Image Enhancement and Analysis System</div>
+                    <br>
+                    <p>
+                        An integrated platform that integrates image enhancement models and high-level vision
+                        models, aimed at assisting with dataset annotation and enhancement. It uses ONNX for model
+                        deployment.
+                    </p>
+                    <strong>Keywords: QT, Model Deployment</strong><br><br>
+                    <div class="pub">
+                        Under Development
+                    </div>
+                    <!--              <p><strong>Second Prize. (6%)</strong></p>-->
+                </div>
+            </div>
+
+
+            <div class="paper-container">
+                <div class="image">
+                    <img src='src/images/RAGAgent.png' alt="RAGAgent"  class="dynamic-static">
+                </div>
+                <div class="text">
+                    <div class="papertitle"> CORTEX Chat Agent</div>
+                    <p>
+                        Built a customizable AI agent based on RAG technology, which helps to mitigate LLM
+                        hallucinations and accelerate the deployment of LLMs. It is inspired by NVIDIA's online course
+                        <a href="https://www.nvidia.cn/training/instructor-led-workshops/building-rag-agents-with-llms/">"Building
+                            RAG Agent with LLMs"</a>.
+                    </p>
+                    <strong>Keywords: SLMs, LLMs, RAG</strong><br><br>
+                    <div class="pub">
+                        Under Development
+                    </div>
+                </div>
+            </div>
+
+            <h3 style="font-size: 1.5em; /* Adjust the font size */
+            font-weight: bold; /* Make the text bold */
+            color: #2a9d8f; /* Change the text color */
+            text-align: center; /* Center align the text */
+            margin: 20px 0; /* Add some margin above and below the heading */">
+                Empowering Traditional Industries with Knowledge: </h3>
+
+            <div class="paper-container">
+                <div class="image">
+                    <img src='src/images/Tocore.png' alt="Tcore" class="dynamic-static">
+                </div>
+                <div class="text">
+                    <div class="papertitle">Web Design for Tocore</div>
+                    <br>
+                    <p></p>
+                    <strong>Keywords: HTML, CSS, JavaScript, Nginx</strong><br><br>
+                    <!--              <p><strong>Second Prize. (6%)</strong></p>-->
+                </div>
+            </div>
+            <div class="paper-container">
+                <div class="image">
+                    <img src='src/images/FingerprintExtractor.png' alt="FingerprintExtractor"  class="dynamic-static">
+                </div>
+                <div class="text">
+                    <div class="papertitle">FingerPrint Extractor designed for Safe Security</div>
+                    <br>
+                    <p></p>
+                    <strong>Keywords: Tracking, FingerPrint, Thinning Methods</strong><br><br>
+                    <a href="https://github.com/ruanyudi/FingerPrint"><strong>
+                        [
+                        <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
+                             alt="GitHub Logo" class="inline-icon">
+                        Code]</strong>
+                    </a>
+                    <!--              <p><strong>Second Prize. (6%)</strong></p>-->
+                </div>
+            </div>
+
+            <!-- <div class="paper-container">
+              <div class="image">
+                <img src='gifs/eeg-monitor.png' alt="EEG Monitor">
+              </div>
+              <div class="text">
+                <span class="papertitle">Limbs Motor Function Monitoring System Based on EEG and EMG Detection and Analysis</span><br>
+                <strong><a href="LimbMonitor/Poster.pdf">[Poster]</a></strong> ·
+                <strong><a href="LimbMonitor/bme-2022-intro.pptx">[Poster Source File (.pptx)]</a></strong>
+                <br><br>
+                <em>Course design</em>, 2021, Exploration and Design of Biomedical Engineering
+                <br>
+                <p>
+                  Built an automatic classification system to assess the subject’s weight-bearing status based on EEG and EMG. This design is an exploration of the ability of EEG and EMG to assess the motor status of stroke patients.
+                </p>
+                <p><strong>Final Score: 92, 4.0/4.0.</strong></p>
+              </div>
+            </div> -->
+
+
+            <!-- <hr>
+            <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
+              <tr>
+                <td style="padding:20px;width:100%;vertical-align:middle">
+                  <h3><strong>Misc 🤔</strong></h3>
+
+                  <p>· I love anime. Recently I've been watching <a href="https://makeine-anime.com/"><em>Too Many Losing Heroines!</em></a>. </p>
+                  <p>· I occasionally make tracks, mainly around focused on EDM.</p>
+                  <p>· I occasionally make tracks, mainly around focused on EDM.</p>
+
+                </td>
+              </tr>
+            </tbody></table> -->
+
+            <!-- <hr>
+            <section id="Friends"></section>
+            <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">
+              <tbody>
+                  <tr>
+                  <td style="padding:20px;width:100%;vertical-align:middle">
+                  <h2><strong>Friends 🤜🤛</strong></h2>
+                    <br>
+                  <div class="image-text-container">
+                    <div class="image">
+                        <img src="gifs/scut_logo.png">
+                    </div>
+
+                    <div class="text">
+                    <table>
+                      <tr>
+                          <td><strong><a href="https://tobyleelsz.github.io/">Shangzhe Li</a></strong></td>
+                          <td>Research Intern @UCSD</td>
+                          <td><em>Reinforcement Learning · physics enthusiast · pilot</em></td>
+                      </tr>
+                      <tr>
+                          <td><strong><a href="https://xinjie-shen.com/">Xinjie Shen</a></strong></td>
+                          <td>Research Intern @Dartmouth</td>
+                          <td><em>Interaction · Graph · Quantitative Finance</em></td>
+                      </tr>
+                      <tr>
+                          <td><strong><a href="https://brandon-liu-jx.github.io/">Jinxiu Liu</a></strong></td>
+                          <td>Research Intern @Stanford</td>
+                          <td><em>4D Dynamic Generation · MLLM</em></td>
+                      </tr>
+                      <tr>
+                          <td><strong><a href="https://troychowzyb.github.io/">Yubin Zhou</a></strong></td>
+                          <td>Research Intern @BrainCo</td>
+                          <td><em>Brain-Computer Interface · Cognitive Neuroscience</em></td>
+                      </tr>
+                    </table>
+                  </div>
+
+                  </div>
+
+                  <div class="image-text-container">
+                    <div class="image">
+                        <img src="gifs/NYU.jpg">
+                    </div>
+                    <div class="text">
+                      <table>
+                        <tr>
+                          <td><strong>Junru Liao</strong></td>
+                          <td>Undergraduate @NYU</td>
+                          <td><em>Biomechanics · Cellular Mechanics Response</em></td>
+                        </tr>
+                      </table>
+                    </div>
+                  </div>
+
+                  <div class="image-text-container">
+                    <div class="image">
+                        <img src="gifs/Sun_Yat-sen_University_Logo.png">
+                    </div>
+                    <div class="text">
+                      <h2 style="padding-bottom:10px;">Sun Yat-sen University</h2>
+
+                      <strong>HONG Xuan</strong>
+                       - <em>High-Energy Phenomenology · Particle Physics · Cosmology<br>
+
+                      <strong>FAN Wei</strong>
+                       - <em>Piezoelectricity · Semiconductor · DeviceFabrication<br>
+                    </div>
+                  </div>
+
+                  </td>
+              </tr>
+              </tbody>
+            </table> -->
+
+            <hr>
+            <!--          <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;padding: 20px;">-->
+            <!--            <tbody>-->
+            <!--              <tr>-->
+            <!--                <td style="padding:0px">-->
+            <!--                  <p style="text-align:center;">-->
+            <!--                    Thanks to <a href="https://github.com/jonbarron/jonbarron_website">John Barron</a> for this homepage template.-->
+            <!--                    <br>-->
+            <!--                    Feel free to take the <a href="https://github.com/HaoquanZhang/HaoquanZhang.github.io">resources</a> of this page.-->
+            <!--                  </p>-->
+            <!--                  <p style="text-align:center;color: rgb(143, 143, 143);">-->
+            <!--                    © 2024 Haoquan Zhang-->
+            <!--                  </p>-->
+            <!--                  <div class="logo-container">-->
+            <!--                    <img src="gifs/scut_logo.png" alt="SCUT Logo">-->
+            <!--                    <img src="gifs/gzic.jpg" alt="GZIC">-->
+            <!--                    <img src="gifs/smu.svg" alt="SMU Logo">-->
+            <!--                    <img src="gifs/CUHK.png" alt="CUHK Logo">-->
+            <!--                </div>-->
+            <!--                </td>-->
+            <!--              </tr>-->
+            <!--            </tbody>-->
+            <!--          </table>-->
+
+        </td>
+    </tr>
+</table>
+</body>
+</html>
+

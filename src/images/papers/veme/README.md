@@ -1,0 +1,1 @@
+Please place the paper images here. Recommended filename: teaser.png
